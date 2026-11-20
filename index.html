@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sổ Bán Hàng</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--text:#1d1d1b;--muted:#6b6a65;--line:#e4e2dc;--accent:#d9622b;--accent-soft:#fbe9df;--ok:#2f8f5b;--warn:#b07d0c;--bad:#c0392b;--bar:#e8a37f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#161615;--card:#1f1f1d;--text:#ecebe6;--muted:#9c9a93;--line:#33322f;--accent:#f0804a;--accent-soft:#3a2418;--ok:#5cc28a;--warn:#e0b24a;--bad:#ef6b5c;--bar:#8a4a2c}}
+:root[data-theme="dark"]{--bg:#161615;--card:#1f1f1d;--text:#ecebe6;--muted:#9c9a93;--line:#33322f;--accent:#f0804a;--accent-soft:#3a2418;--ok:#5cc28a;--warn:#e0b24a;--bad:#ef6b5c;--bar:#8a4a2c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+h1{font-size:20px;margin:0}
+h1 span{color:var(--accent)}
+h2{font-size:15px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select,textarea{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:8px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:600}
+.btn.ghost{background:transparent}
+.btn.sm{padding:3px 9px;font-size:12px}
+.btn.danger{color:var(--bad)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:14px;overflow-x:auto}
+.tabs button{font:inherit;background:none;border:0;border-bottom:2px solid transparent;padding:8px 12px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tabs button.on{color:var(--text);border-color:var(--accent);font-weight:600}
+.tabs .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:99px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
+.alerts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.alert{flex:1;min-width:220px;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:13px}
+.alert b{font-size:15px}
+.alert.bad{border-color:color-mix(in srgb,var(--bad) 45%,var(--line));background:color-mix(in srgb,var(--bad) 7%,var(--card))}
+.alert.warn{border-color:color-mix(in srgb,var(--warn) 50%,var(--line));background:color-mix(in srgb,var(--warn) 8%,var(--card))}
+.alert.good{border-color:color-mix(in srgb,var(--ok) 45%,var(--line));background:color-mix(in srgb,var(--ok) 7%,var(--card))}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.kpi .lbl{color:var(--muted);font-size:12px}
+.kpi .val{font-size:22px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .cmp{font-size:12px;margin-top:2px}
+.kpi.hl{border-color:var(--accent);background:var(--accent-soft)}
+.up,.good-t{color:var(--ok)}.down,.bad-t{color:var(--bad)}.flat{color:var(--muted)}.warn-t{color:var(--warn)}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.chart{display:flex;align-items:flex-end;gap:4px;height:180px;padding-top:8px}
+.chart .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.chart .b{width:100%;background:var(--bar);border-radius:4px 4px 0 0;min-height:2px}
+.chart .col.sel .b{background:var(--accent)}
+.chart .d{font-size:10px;color:var(--muted);margin-top:4px;white-space:nowrap}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.list li:last-child{border:0}
+.list .sub{color:var(--muted);font-size:12px}
+.hbar{height:5px;background:var(--accent-soft);border-radius:3px;margin-top:3px}
+.hbar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.empty{color:var(--muted);padding:14px 0;text-align:center}
+.tbl-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.card .tbl-wrap{border:0;border-radius:0;margin:0 -14px -14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{color:var(--muted);font-weight:600;font-size:12px;background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.c,th.c{text-align:center}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover{background:var(--accent-soft)}
+tr.cancel td{opacity:.45;text-decoration:line-through}
+tfoot td{font-weight:700;background:var(--bg)}
+.pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap}
+.p-vip{background:var(--accent);color:#fff}
+.p-tag{background:var(--accent-soft);color:var(--accent)}
+.p-ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+.p-bad{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.p-warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.tog{font:inherit;font-size:12px;font-weight:600;border-radius:99px;padding:3px 10px;cursor:pointer;white-space:nowrap;border:1px dashed var(--line);background:var(--card);color:var(--muted)}
+.tog.yes{border-style:solid;border-color:transparent;background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+.tog.no-bad{border:1px solid color-mix(in srgb,var(--bad) 40%,transparent);color:var(--bad)}
+.tog.part{border:1px solid color-mix(in srgb,var(--warn) 50%,transparent);color:var(--warn)}
+.apt{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:0 6px;font-size:12px;font-weight:600;white-space:nowrap}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:flex-end}
+.toolbar input[type=search]{flex:1;min-width:160px}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--text);padding:18px;width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 32px)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h3{margin:0 0 12px;font-size:17px}
+label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}
+label input,label select{color:var(--text);font-size:14px}
+label.chk{flex-direction:row;align-items:center;gap:8px;font-size:14px;color:var(--text);padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+label.chk input{width:18px;height:18px;accent-color:var(--accent)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.sec{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 6px}
+.prod{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px}
+.prod b{font-size:15px}
+.prod .muted{font-size:12px}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:36px;height:36px;padding:0;font-size:18px;line-height:1}
+.step input{width:56px;text-align:center;font-size:16px;font-weight:700}
+.paybox{display:flex;gap:6px;align-items:flex-end}
+.paybox label{flex:1}
+.total{font-size:15px;text-align:right;margin:10px 0}
+.total b{color:var(--accent);font-size:20px}
+.dlg-act{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;flex-wrap:wrap}
+.dlg-act .left{margin-right:auto}
+details.menu{position:relative}
+details.menu summary{list-style:none}
+details.menu summary::-webkit-details-marker{display:none}
+details.menu .pop{position:absolute;right:0;top:110%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px;z-index:5;display:flex;flex-direction:column;min-width:210px;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+details.menu .pop button{text-align:left;border:0;background:none;color:var(--text);font:inherit;padding:7px 10px;border-radius:6px;cursor:pointer}
+details.menu .pop button:hover{background:var(--accent-soft)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.stats div{background:var(--bg);border-radius:8px;padding:8px}
+.stats b{display:block;font-size:16px}
+.stats span{font-size:11px;color:var(--muted)}
+.hist{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+.muted{color:var(--muted)}
+textarea{width:100%;font-family:inherit;resize:vertical}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 16px;border-radius:99px;font-size:13px;z-index:50;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.daybar{margin-bottom:12px;padding:12px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x proximity}
+.chip{flex:0 0 auto;min-width:78px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.25;font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-top:4px solid var(--ok);border-radius:10px;padding:5px 8px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip .cd{font-size:11px;color:var(--muted)}
+.chip b{font-size:15px}
+.chip .cv{font-size:11px;color:var(--muted);white-space:nowrap}
+.chip .cs{font-size:11px;font-weight:700;white-space:nowrap;color:var(--ok)}
+.chip.st-debt{border-top-color:var(--bad)}.chip.st-debt .cs{color:var(--bad)}
+.chip.st-mom{border-top-color:var(--accent)}.chip.st-mom .cs{color:var(--accent)}
+.chip.st-notify{border-top-color:var(--warn)}.chip.st-notify .cs{color:var(--warn)}
+.chip.empty{border-style:dashed;border-top-width:1px;opacity:.8}.chip.empty .cs{color:var(--muted);font-weight:400}
+.chip.sel{background:var(--accent-soft);outline:2px solid var(--accent);outline-offset:-1px}
+.chips .mon{flex:0 0 auto;align-self:stretch;display:flex;align-items:center;padding:0 2px 0 6px;font-size:11px;font-weight:700;color:var(--muted);border-left:1px solid var(--line)}
+.chips .mon:first-child{border-left:0;padding-left:0}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+[hidden]{display:none!important}
+@media (max-width:820px){.kpis{grid-template-columns:1fr 1fr}.grid,.grid2{grid-template-columns:1fr}}
+@media (max-width:480px){.kpi .val{font-size:18px}.g2{gap:8px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🍲 Sổ <span>Bán Hàng</span></h1>
+    <div class="row">
+      <label style="flex-direction:row;align-items:center;gap:6px">Ngày bán<input type="date" id="viewDate"></label>
+      <button class="btn primary" id="newOrder">+ Đơn mới</button>
+      <details class="menu"><summary class="btn">⋯</summary>
+        <div class="pop">
+          <button data-act="exportJson">⬇ Sao lưu (JSON)</button>
+          <button data-act="importJson">⬆ Khôi phục từ JSON</button>
+          <button data-act="exportCsv">⬇ Xuất đơn hàng (CSV/Excel)</button>
+          <button data-act="reseed">📥 Nạp lại dữ liệu từ Excel</button>
+          <button data-act="sample">✨ Tạo dữ liệu mẫu</button>
+          <button data-act="clear" style="color:var(--bad)">🗑 Xóa toàn bộ dữ liệu</button>
+        </div>
+      </details>
+      <input type="file" id="fileIn" accept=".json,application/json" hidden>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="day" class="on">📅 Trong ngày</button>
+    <button data-tab="money">💰 Công nợ & Chuyển mẹ<span class="badge" id="moneyBadge" hidden></span></button>
+    <button data-tab="customers">👥 Khách hàng</button>
+    <button data-tab="orders">🧾 Tất cả đơn</button>
+    <button data-tab="stats">📊 Thống kê</button>
+  </nav>
+
+  <div class="alerts" id="alerts"></div>
+
+  <!-- TRONG NGÀY -->
+  <section id="tab-day">
+    <div class="card daybar">
+      <div class="row" style="justify-content:space-between;margin-bottom:8px">
+        <div class="row">
+          <button class="btn sm" id="prevDay" title="Ngày bán trước">◀</button>
+          <button class="btn sm" id="todayBtn">Hôm nay</button>
+          <button class="btn sm" id="nextDay" title="Ngày bán sau">▶</button>
+          <span class="muted" id="dayBarInfo" style="font-size:12px"></span>
+        </div>
+        <select id="dayFilter">
+          <option value="">Tất cả ngày bán</option>
+          <option value="issue">Cần xử lý</option>
+          <option value="debt">Còn khách nợ</option>
+          <option value="mom">Tiền mẹ chưa khớp</option>
+        </select>
+      </div>
+      <div class="chips" id="dayChips"></div>
+      <div class="legend"><span><i style="background:var(--bad)"></i>còn khách nợ</span><span><i style="background:var(--accent)"></i>tiền mẹ chưa khớp</span><span><i style="background:var(--warn)"></i>chưa báo mẹ</span><span><i style="background:var(--ok)"></i>xong</span></div>
+    </div>
+    <div class="kpis" id="dayKpis"></div>
+    <div class="card">
+      <h2><span id="dayTitle">Đơn trong ngày</span>
+        <span class="row">
+          <button class="btn sm" id="momMsg">📋 Tin nhắn cho mẹ</button>
+          <button class="btn sm" id="markAllPaid">✓ Đánh dấu tất cả đã trả</button>
+        </span>
+      </h2>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>#</th><th>Căn hộ</th><th>Khách</th><th class="num">Giả cầy</th><th class="num">Cá kho</th><th class="num">Tiền</th><th class="c">Báo mẹ</th><th class="c">Khách trả</th></tr></thead>
+        <tbody id="dayBody"></tbody><tfoot id="dayFoot"></tfoot>
+      </table></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h2>Tiền đã chuyển mẹ (đơn ngày này) <button class="btn sm ok" data-transfer-day>+ Ghi lần chuyển</button></h2>
+      <ul class="list" id="dayTransfers"></ul>
+    </div>
+  </section>
+
+  <!-- CÔNG NỢ & CHUYỂN MẸ -->
+  <section id="tab-money" hidden>
+    <div class="kpis" id="moneyKpis"></div>
+    <div class="card" style="margin-bottom:12px">
+      <h2>Khách còn nợ</h2>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Căn hộ</th><th>Khách</th><th>Ngày mua chưa trả</th><th class="num">Đang nợ</th><th class="num">Tổng chi từ trước</th><th></th></tr></thead>
+        <tbody id="debtBody"></tbody><tfoot id="debtFoot"></tfoot>
+      </table></div>
+    </div>
+    <div class="card">
+      <h2>Tiền chuyển mẹ theo ngày <span class="muted" style="font-size:12px;font-weight:400">Cần chuyển = doanh thu ngày − tiền đã chuyển mẹ (số âm = chuyển dư, cần xem lại)</span></h2>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Ngày bán</th><th class="num">Doanh thu</th><th class="num">Khách đã trả</th><th class="num">Khách còn nợ</th><th class="num">Mẹ đã nhận</th><th class="num">Cần chuyển mẹ</th><th></th></tr></thead>
+        <tbody id="momBody"></tbody><tfoot id="momFoot"></tfoot>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- KHÁCH HÀNG -->
+  <section id="tab-customers" hidden>
+    <div class="toolbar">
+      <input type="search" id="cSearch" placeholder="Tìm tên Facebook, căn hộ, SĐT, ghi chú…">
+      <select id="cBuilding"></select>
+      <select id="cFilter">
+        <option value="">Tất cả khách</option>
+        <option value="debt">Đang nợ</option>
+        <option value="VIP">VIP</option>
+        <option value="Thân thiết">Thân thiết</option>
+        <option value="Mới">Mới</option>
+        <option value="churn">Lâu chưa quay lại (≥14 ngày)</option>
+      </select>
+      <select id="cSort">
+        <option value="spent">Sắp xếp: Tổng chi</option>
+        <option value="debt">Sắp xếp: Đang nợ</option>
+        <option value="count">Sắp xếp: Số đơn</option>
+        <option value="last">Sắp xếp: Mua gần nhất</option>
+        <option value="apt">Sắp xếp: Tòa / căn hộ</option>
+      </select>
+      <button class="btn" id="newCust">+ Khách mới</button>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Căn hộ</th><th>Tên Facebook</th><th>Hạng</th><th class="num">Số đơn</th><th class="num">Tổng chi</th><th class="num">Đang nợ</th><th>Mua gần nhất</th></tr></thead>
+      <tbody id="cBody"></tbody><tfoot id="cFoot"></tfoot>
+    </table></div>
+    <p class="muted" style="font-size:12px">Bấm vào một khách để xem lịch sử mua, công nợ và chỉnh thông tin.</p>
+  </section>
+
+  <!-- TẤT CẢ ĐƠN -->
+  <section id="tab-orders" hidden>
+    <div class="toolbar">
+      <label>Từ ngày<input type="date" id="oFrom"></label>
+      <label>Đến ngày<input type="date" id="oTo"></label>
+      <label>Tòa<select id="oBuilding"></select></label>
+      <label>Lọc<select id="oState"><option value="">Tất cả</option><option value="unpaid">Khách chưa trả</option><option value="paid">Khách đã trả</option><option value="unnotified">Chưa báo mẹ</option><option value="cancel">Đã hủy</option></select></label>
+      <label style="flex:1">Tìm kiếm<input type="search" id="oSearch" placeholder="Tên Facebook, căn hộ, SĐT…"></label>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Ngày</th><th>Căn hộ</th><th>Khách</th><th class="num">Giả cầy</th><th class="num">Cá kho</th><th class="num">Tiền</th><th class="c">Báo mẹ</th><th class="c">Khách trả</th></tr></thead>
+      <tbody id="oBody"></tbody><tfoot id="oFoot"></tfoot>
+    </table></div>
+  </section>
+
+  <!-- THỐNG KÊ -->
+  <section id="tab-stats" hidden>
+    <div class="kpis" id="statKpis"></div>
+    <div class="grid">
+      <div class="card"><h2>Doanh thu 14 ngày</h2><div class="chart" id="chart"></div></div>
+      <div class="card"><h2>Theo tòa (30 ngày)</h2><ul class="list" id="byBuilding"></ul></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h2>Khách mua nhiều (30 ngày)</h2><ul class="list" id="topCust"></ul></div>
+      <div class="card"><h2>⚠ Khách quen lâu chưa quay lại</h2><ul class="list" id="churn"></ul></div>
+    </div>
+  </section>
+</div>
+
+<datalist id="custList"></datalist>
+<datalist id="buildingList"></datalist>
+<div class="toast" id="toast"></div>
+
+<!-- Dialog đơn hàng -->
+<dialog id="orderDlg"><form id="orderForm" novalidate>
+  <h3 id="orderTitle">Đơn mới</h3>
+  <div class="g2">
+    <label>Tên Facebook<input name="fb" list="custList" placeholder="Gõ để tìm khách cũ" autocomplete="off"></label>
+    <label>Số điện thoại<input name="phone" inputmode="tel" autocomplete="off"></label>
+    <label>Tòa<input name="building" list="buildingList" placeholder="VD: A, B, S1" autocomplete="off"></label>
+    <label>Số căn hộ<input name="apt" placeholder="VD: 1203" autocomplete="off"></label>
+  </div>
+  <div id="prodRows"></div>
+  <div id="extraItems" class="prod" style="font-size:13px;justify-content:flex-start;flex-wrap:wrap" hidden></div>
+  <div class="g2">
+    <label>Ngày bán<input type="date" name="date" required></label>
+    <label>Giờ giao<input type="time" name="time"></label>
+  </div>
+  <label>Ghi chú<input name="note" placeholder="VD: ít cay, gửi bảo vệ, giao trước 11h…"></label>
+  <div class="total">Tiền đơn: <b id="orderTotal">0đ</b></div>
+
+  <div class="sec">Tình trạng</div>
+  <div class="g2">
+    <label class="chk"><input type="checkbox" name="notified"> Đã báo mẹ</label>
+    <label class="chk"><input type="checkbox" name="cancelled"> Hủy đơn</label>
+  </div>
+  <div class="paybox" style="margin-bottom:10px">
+    <label>Khách đã trả (đ)<input type="number" name="paid" min="0" step="1000" value="0"></label>
+    <button type="button" class="btn ok" id="payFull">Đủ</button>
+    <button type="button" class="btn" id="payNone">Chưa</button>
+  </div>
+  <div class="g2">
+    <label>Hình thức trả<select name="payment"><option>Chuyển khoản</option><option>Tiền mặt</option></select></label>
+    <label>Đặt qua<select name="channel"><option>Facebook</option><option>Zalo</option><option>Trực tiếp</option></select></label>
+    <label>Giảm giá (đ)<input type="number" name="discount" min="0" step="1000" value="0"></label>
+    <div id="debtNote" style="align-self:end;font-size:13px;padding-bottom:8px"></div>
+  </div>
+  <div class="dlg-act">
+    <button type="button" class="btn danger left" id="delOrder" hidden>Xóa đơn</button>
+    <button type="button" class="btn ghost" data-close>Đóng</button>
+    <button type="submit" class="btn primary">Lưu đơn</button>
+  </div>
+</form></dialog>
+
+<!-- Dialog khách hàng -->
+<dialog id="custDlg"><form id="custForm" novalidate>
+  <h3 id="custTitle">Khách hàng</h3>
+  <div class="g2">
+    <label>Tên Facebook<input name="fb"></label>
+    <label>Số điện thoại<input name="phone" inputmode="tel"></label>
+    <label>Tòa<input name="building" list="buildingList"></label>
+    <label>Số căn hộ<input name="apt"></label>
+    <label>Hạng<select name="tag"><option>Mới</option><option>Thân thiết</option><option>VIP</option></select></label>
+    <label>Ghi chú / sở thích<input name="note" placeholder="VD: ăn ít cay…"></label>
+  </div>
+  <div id="custStats"></div>
+  <div class="dlg-act">
+    <button type="button" class="btn danger left" id="delCust" hidden>Xóa khách</button>
+    <button type="button" class="btn ok" id="custPayAll" hidden>Đã thu hết nợ</button>
+    <button type="button" class="btn" id="orderForCust" hidden>+ Tạo đơn</button>
+    <button type="button" class="btn ghost" data-close>Đóng</button>
+    <button type="submit" class="btn primary">Lưu</button>
+  </div>
+</form></dialog>
+
+<!-- Dialog tin nhắn cho mẹ -->
+<dialog id="momDlg">
+  <h3>📋 Tin nhắn gửi mẹ</h3>
+  <div class="row" style="margin-bottom:8px">
+    <select id="momScope"><option value="new">Chỉ đơn chưa báo mẹ</option><option value="all">Tất cả đơn trong ngày</option></select>
+  </div>
+  <textarea id="momText" rows="12" readonly></textarea>
+  <div class="dlg-act">
+    <button type="button" class="btn ghost" data-close>Đóng</button>
+    <button type="button" class="btn primary" id="momCopy">Copy & đánh dấu đã báo mẹ</button>
+  </div>
+</dialog>
+
+<!-- Dialog chuyển tiền mẹ -->
+<dialog id="tDlg"><form id="tForm" novalidate>
+  <h3>💸 Ghi lần chuyển tiền cho mẹ</h3>
+  <div class="g2">
+    <label>Tiền của đơn ngày<input type="date" name="date" required></label>
+    <label>Số tiền đã chuyển (đ)<input type="number" name="amount" min="0" step="1000" required></label>
+  </div>
+  <label>Ghi chú<input name="note" placeholder="VD: CK lúc 21h"></label>
+  <p id="tHint" class="muted" style="font-size:13px"></p>
+  <div class="dlg-act">
+    <button type="button" class="btn ghost" data-close>Hủy</button>
+    <button type="submit" class="btn ok">Lưu</button>
+  </div>
+</form></dialog>
+
+<script type="application/json" id="seedData">{"customers":[{"id":"5dc4d5c7f3db","fb":"Thuy Yen Tran","phone":"","building":"S4","apt":"2006","tag":"Thân thiết","note":"Tên khác: Park Seo Joon"},{"id":"be087898d1a9","fb":"Mai Truong","phone":"","building":"S1","apt":"1806","tag":"Mới","note":""},{"id":"e33e2f8be602","fb":"Le Huyen","phone":"","building":"S1","apt":"2006","tag":"Thân thiết","note":""},{"id":"6700e173d1ed","fb":"Tiên Tiên","phone":"","building":"S2","apt":"2608","tag":"Mới","note":""},{"id":"189957505175","fb":"Vuong Hong Van","phone":"","building":"S4","apt":"1502","tag":"Mới","note":""},{"id":"efd4edb5cdea","fb":"Tâm Dương","phone":"","building":"S2","apt":"2105","tag":"Thân thiết","note":""},{"id":"cc446a0b0dcb","fb":"Linh Vũ","phone":"","building":"S1","apt":"2205","tag":"Mới","note":""},{"id":"3bd7b5852341","fb":"Le Van","phone":"","building":"S2","apt":"902","tag":"Mới","note":""},{"id":"0b441fb93b40","fb":"Phạm Thanh Thủy","phone":"","building":"S1","apt":"2303","tag":"Thân thiết","note":"Tên khác: Pham Thanh Thuy"},{"id":"e4d66d00ab16","fb":"Lan Vu","phone":"","building":"S3","apt":"1205","tag":"Mới","note":""},{"id":"1049f763ed26","fb":"Kim Anh Hoang","phone":"","building":"S4","apt":"3606","tag":"Mới","note":""},{"id":"3a46af1144e8","fb":"Anh Ngọc Lưu","phone":"","building":"S4","apt":"3501","tag":"Mới","note":""},{"id":"e42b9863fc14","fb":"Lê Quỳnh Như","phone":"","building":"C","apt":"2507","tag":"Mới","note":""},{"id":"6a7da3e20ade","fb":"Hoa Ha","phone":"","building":"S1","apt":"1510","tag":"Mới","note":""},{"id":"5e2db188a20f","fb":"Ngọc Nguyễn Minh","phone":"","building":"S3","apt":"12A02","tag":"VIP","note":""},{"id":"1df06c4f3903","fb":"Thu Huong","phone":"","building":"S4","apt":"4103","tag":"Thân thiết","note":"Tên khác: Thu Hương"},{"id":"17f436bc3323","fb":"Phan Thanh Ha","phone":"","building":"S4","apt":"3608","tag":"Mới","note":""},{"id":"7d7592f303fa","fb":"Lienanh Nguyen","phone":"","building":"S1","apt":"3901","tag":"Mới","note":""},{"id":"d9205afc334b","fb":"Duong Bichhuong","phone":"","building":"S4","apt":"12B03","tag":"Thân thiết","note":""},{"id":"58a3745a5cb9","fb":"Mai Phuong Tran","phone":"","building":"HM","apt":"01-A10","tag":"Mới","note":""},{"id":"36fbb8ffabbc","fb":"Thu Nguyễn","phone":"","building":"S4","apt":"1707","tag":"Thân thiết","note":"Tên khác: Thu Nguyen"},{"id":"e61f534af5ec","fb":"Thuy Van","phone":"","building":"S3","apt":"2106","tag":"Mới","note":""},{"id":"3a6202178ad1","fb":"Thảo Nguyên Xanh","phone":"","building":"S2","apt":"3708","tag":"Mới","note":""},{"id":"9e5816ab0b1a","fb":"Tonga Hoang","phone":"","building":"S3","apt":"1605","tag":"Mới","note":""},{"id":"26cfaabb2f99","fb":"Nguyen Manh","phone":"","building":"S3","apt":"2504","tag":"Mới","note":""},{"id":"0160c68803e9","fb":"Vân Trương","phone":"","building":"S3","apt":"1105","tag":"Mới","note":""},{"id":"acde371ec988","fb":"Hạnh Nguyên","phone":"","building":"S3","apt":"2102","tag":"Mới","note":""},{"id":"8559210d5a18","fb":"Đào Thu Thủy","phone":"","building":"S3","apt":"3604","tag":"Mới","note":""},{"id":"b0a3c4d36cd0","fb":"Phương Nguyễn","phone":"","building":"S3","apt":"2704","tag":"Mới","note":""},{"id":"cc0c0397848e","fb":"Thoan Pham","phone":"","building":"S3","apt":"3002","tag":"Mới","note":""},{"id":"d424f4c290f7","fb":"Lê Thị Huyền","phone":"","building":"S1","apt":"3608","tag":"Mới","note":""},{"id":"5853f5d382f6","fb":"Thu Hằng","phone":"","building":"S4","apt":"3908","tag":"Mới","note":""},{"id":"4ac6b306b9cc","fb":"Ngoc Anh Do","phone":"","building":"S4","apt":"3103","tag":"Mới","note":""},{"id":"aa5fe27a9f6b","fb":"Ngọc Bích Đỗ","phone":"","building":"S3","apt":"1002","tag":"Mới","note":""},{"id":"ecb1178d292c","fb":"Cù Thủy","phone":"","building":"S3","apt":"1602","tag":"Mới","note":""},{"id":"3cf95f56e65f","fb":"Nguyễn Thị Thanh Lan","phone":"","building":"S3","apt":"505","tag":"Mới","note":""},{"id":"09ea49a60510","fb":"Trần Thùy Linh","phone":"","building":"S2","apt":"3706","tag":"Mới","note":""},{"id":"e0944bceb0b8","fb":"Phương Mark","phone":"","building":"S2","apt":"1806","tag":"Mới","note":""},{"id":"88f15cfd9c83","fb":"Nam Hương","phone":"","building":"S3","apt":"3806","tag":"Thân thiết","note":""},{"id":"e18a6595f994","fb":"Duong Nguyen","phone":"","building":"S3","apt":"903","tag":"Thân thiết","note":""},{"id":"15011ed5f9fb","fb":"Khánh Nguyên","phone":"","building":"S2","apt":"12B03","tag":"Mới","note":""},{"id":"87db5763dd40","fb":"Phun Koi","phone":"","building":"S4","apt":"3205","tag":"Mới","note":""},{"id":"250f6817115b","fb":"Lê Thùy","phone":"","building":"S1","apt":"1208","tag":"Mới","note":""},{"id":"1fb6766ed1ee","fb":"Thanh Ngân","phone":"","building":"S2","apt":"804","tag":"Mới","note":""},{"id":"c5beb45ba26f","fb":"Khánh Linh","phone":"","building":"S2","apt":"2306","tag":"Thân thiết","note":""},{"id":"c93836733f51","fb":"Khoai Mon","phone":"","building":"S2","apt":"2006","tag":"Mới","note":""},{"id":"4d871f0da523","fb":"Loan Loan","phone":"","building":"S3","apt":"3205","tag":"Mới","note":""},{"id":"5975a150e3f2","fb":"Bao Ngoc Nguyen","phone":"","building":"S3","apt":"1208","tag":"Mới","note":""},{"id":"426eab1daec5","fb":"Oanh Oanh Dang","phone":"","building":"S2","apt":"2502","tag":"Mới","note":""},{"id":"fbd145c025c1","fb":"Mai Linh","phone":"","building":"S1","apt":"2104","tag":"Mới","note":""},{"id":"9768864ba46e","fb":"Nguyễn Thị Thanh Minh","phone":"","building":"S4","apt":"3401","tag":"Mới","note":""},{"id":"2ef2da7f30bc","fb":"Đan Vũ","phone":"","building":"S1","apt":"2301","tag":"Mới","note":""},{"id":"940a90aae8ef","fb":"Hà Hồng","phone":"","building":"S4","apt":"3102","tag":"Thân thiết","note":""},{"id":"87837bd220b8","fb":"Duong Hoang Ngan","phone":"","building":"","apt":"","tag":"Thân thiết","note":"Ở Thái Hà"},{"id":"b91a055031c9","fb":"Le Van Chi","phone":"","building":"D","apt":"1603","tag":"Mới","note":""},{"id":"9f3cd9a9ca76","fb":"Thuy Tran","phone":"","building":"S1","apt":"3106","tag":"Thân thiết","note":""},{"id":"0f882c27bc70","fb":"Vuong Thuy","phone":"","building":"S3","apt":"2408","tag":"Mới","note":""},{"id":"6a6200bbe2ed","fb":"Thanh Hang Nguyen","phone":"","building":"S4","apt":"702","tag":"Mới","note":""},{"id":"3e4788b89a14","fb":"Trang Nguyễn","phone":"","building":"S3","apt":"801","tag":"Thân thiết","note":""},{"id":"d40b44061ebe","fb":"Vũ Thị Nhài","phone":"","building":"S3","apt":"808","tag":"Mới","note":""},{"id":"97db8d53eabf","fb":"Mỹ Hạnh","phone":"","building":"S1","apt":"1704","tag":"Mới","note":""},{"id":"1a0aa838a2f0","fb":"Phạm Phương Thảo","phone":"","building":"S1","apt":"2501","tag":"Thân thiết","note":""},{"id":"7ffa21ca12aa","fb":"Hongxie Le","phone":"","building":"S2","apt":"3601","tag":"Mới","note":""},{"id":"e3be282d3baa","fb":"Tutu Lili","phone":"","building":"S2","apt":"2401","tag":"Mới","note":""},{"id":"e9992266ae08","fb":"Coo Coo Ca Choo","phone":"","building":"S3","apt":"1704","tag":"Mới","note":""},{"id":"fdc3b0d4ab8e","fb":"Cô Thảo","phone":"","building":"S1","apt":"1611","tag":"Mới","note":""},{"id":"3ead78b59ada","fb":"Tam Tit","phone":"","building":"S3","apt":"2805","tag":"Mới","note":""},{"id":"151cddc59c1a","fb":"Hoa Nhu Bui Thi","phone":"","building":"S3","apt":"2304","tag":"Thân thiết","note":"Tên khác: Hoa Nhu Bui Thu"},{"id":"0eab9283bca9","fb":"Dinh Vananh","phone":"","building":"S4","apt":"3901","tag":"Mới","note":""},{"id":"d583aad92a00","fb":"Dong Mai","phone":"","building":"S1","apt":"506","tag":"Mới","note":""},{"id":"297512da208c","fb":"Trần Thu Hà Phương","phone":"","building":"E","apt":"2208","tag":"Mới","note":""},{"id":"39d1c4d63ed5","fb":"Lưu Nhật","phone":"","building":"S4","apt":"709","tag":"Mới","note":""},{"id":"6eb08f502dfd","fb":"Le Trang","phone":"","building":"S3","apt":"1906","tag":"Mới","note":""},{"id":"1df943ef4209","fb":"An An","phone":"","building":"S2","apt":"3004","tag":"Thân thiết","note":""},{"id":"bf556229fce7","fb":"Khánh Huyền","phone":"","building":"S3","apt":"3704","tag":"Mới","note":""},{"id":"e1e24e916317","fb":"","phone":"","building":"S1","apt":"2710","tag":"Mới","note":""},{"id":"916e8e98fa4d","fb":"Hong Phuc","phone":"","building":"S1","apt":"2406","tag":"Mới","note":""},{"id":"e4eaa3d1bb88","fb":"","phone":"","building":"S4","apt":"1107","tag":"Mới","note":""},{"id":"f02d60ae1b07","fb":"Hai Anh","phone":"","building":"S4","apt":"3706","tag":"Mới","note":""},{"id":"219088bbb9aa","fb":"Huyen Dao","phone":"","building":"S1","apt":"1804","tag":"Thân thiết","note":""},{"id":"81dfc1185b88","fb":"Mai Liên","phone":"","building":"S4","apt":"2201","tag":"Thân thiết","note":"Tên khác: Vương Phạm"},{"id":"a22351249e9f","fb":"Bella Nguyen","phone":"","building":"S1","apt":"1009","tag":"Mới","note":""},{"id":"df1fad1a929d","fb":"Liberty Nguyễn","phone":"","building":"S2","apt":"1105","tag":"Mới","note":""},{"id":"776d664695da","fb":"Phạm Thanh Huyền","phone":"","building":"S4","apt":"3208","tag":"Mới","note":""},{"id":"d2a540bf044f","fb":"","phone":"","building":"S1","apt":"1205","tag":"Mới","note":""},{"id":"d5a9b003d5e4","fb":"Tran Huyen","phone":"","building":"S2","apt":"12A08","tag":"Mới","note":""},{"id":"4b7926578ae7","fb":"O Huệ","phone":"","building":"","apt":"","tag":"Mới","note":"Ở O Huệ"},{"id":"98016be9ac4b","fb":"Phạm Đoàn Hà Linh","phone":"","building":"","apt":"","tag":"Mới","note":""},{"id":"d6889ad91047","fb":"Huong Venh","phone":"","building":"S4","apt":"805","tag":"Mới","note":""},{"id":"ce1e2eec542c","fb":"Khánh Hải","phone":"","building":"S4","apt":"2403","tag":"Mới","note":""},{"id":"42aa122a3e69","fb":"Duy Hoàng","phone":"","building":"S2","apt":"4003","tag":"Mới","note":""},{"id":"344dfea8965c","fb":"Bs Tuyên","phone":"","building":"S1","apt":"2410","tag":"Mới","note":""},{"id":"fee399424b02","fb":"Trâm Hoàng","phone":"","building":"S2","apt":"2202","tag":"Mới","note":""},{"id":"cb621cfb8f87","fb":"Tạ Thanh Hiền","phone":"","building":"S2","apt":"2505","tag":"Mới","note":""},{"id":"827d7e176693","fb":"Nguyễn Kim Vân","phone":"","building":"S4","apt":"2606","tag":"Thân thiết","note":""},{"id":"164903f1fe2c","fb":"Trung Anh","phone":"","building":"S2","apt":"3906","tag":"VIP","note":""},{"id":"ef9040197eba","fb":"Bình Nguyễn","phone":"","building":"S4","apt":"3107","tag":"Mới","note":""},{"id":"67d0abd72360","fb":"Thao Vi Nguyen","phone":"","building":"S4","apt":"1504","tag":"Mới","note":""},{"id":"1311e163ff2e","fb":"Nga Vũ","phone":"","building":"S1","apt":"1608","tag":"Mới","note":"Tên khác: Nga Vu"},{"id":"3c1219f197a5","fb":"Tuyết Lý","phone":"","building":"S2","apt":"704","tag":"Mới","note":""},{"id":"bb86d7192082","fb":"Linh Piano","phone":"","building":"S1","apt":"1703","tag":"Mới","note":""},{"id":"4872656cd41d","fb":"Đỗ Thị Kim Hoa","phone":"","building":"C","apt":"2301","tag":"Thân thiết","note":""},{"id":"ac6d9076cb78","fb":"Mai Trang Nguyen","phone":"","building":"S3","apt":"3808","tag":"Thân thiết","note":"Tên khác: Mai Trang"},{"id":"248536048cb5","fb":"Đào Mai Hương","phone":"","building":"S3","apt":"2008","tag":"Mới","note":""},{"id":"1d3211f5a656","fb":"Đỗ Phương Anh","phone":"","building":"S4","apt":"1607","tag":"Mới","note":""},{"id":"98082644107a","fb":"Việt Trinh","phone":"","building":"S1","apt":"1201","tag":"Mới","note":""},{"id":"e3cd202994e0","fb":"Tra Linh Do","phone":"","building":"S3","apt":"2406","tag":"Mới","note":""},{"id":"d52c7c77aba0","fb":"Mai Huong","phone":"","building":"S1","apt":"1707","tag":"Mới","note":""},{"id":"c206baab01ec","fb":"Nguyễn Cương","phone":"","building":"S2","apt":"2707","tag":"Thân thiết","note":""},{"id":"b27c238a7ac5","fb":"Hiếu","phone":"","building":"","apt":"","tag":"Mới","note":""},{"id":"b17d6b965265","fb":"Tuan Doan","phone":"","building":"S1","apt":"1011","tag":"Mới","note":""},{"id":"cc5f7ca39c0e","fb":"Lâm Mộc","phone":"","building":"S1","apt":"3302","tag":"Mới","note":"Tên khác: Lam Mộc"},{"id":"dd1afde1dd9f","fb":"Quý Hoàng","phone":"","building":"S3","apt":"703","tag":"Mới","note":""},{"id":"58edceb2138a","fb":"Lan Ngọc","phone":"","building":"S2","apt":"2703","tag":"Mới","note":""},{"id":"17ca114db2dc","fb":"Ben Bé Bỏng","phone":"","building":"S1","apt":"3409","tag":"Mới","note":""},{"id":"65fb56c2a878","fb":"Van Pham","phone":"","building":"S2","apt":"1607","tag":"Mới","note":""},{"id":"525f8ce45f95","fb":"Nguyễn Thanh Thủy","phone":"","building":"S1","apt":"1108","tag":"Mới","note":""},{"id":"7e35ba4c6829","fb":"Quỳnh Trang","phone":"","building":"S1","apt":"2809","tag":"Mới","note":""},{"id":"8119b0dede66","fb":"","phone":"","building":"S3","apt":"1807","tag":"Mới","note":""},{"id":"451b393020d5","fb":"Hoàng Anh Mai","phone":"","building":"S1","apt":"603","tag":"Mới","note":""},{"id":"4d231831baf5","fb":"Thu Hà","phone":"","building":"S1","apt":"3910","tag":"Mới","note":""},{"id":"23128e9170fd","fb":"Đậu Huyền Nga","phone":"","building":"S3","apt":"4002","tag":"Mới","note":""},{"id":"ea9fb47b12c5","fb":"Thu Ha","phone":"","building":"S1","apt":"2705","tag":"Mới","note":""},{"id":"3f7a20064c38","fb":"Chinh Tran","phone":"","building":"S1","apt":"1607","tag":"Mới","note":""},{"id":"ed6977c03833","fb":"Phan Nga","phone":"","building":"S4","apt":"803","tag":"Mới","note":""},{"id":"899e276ed37e","fb":"Mai Candy","phone":"","building":"S2","apt":"3305","tag":"Mới","note":""},{"id":"ccbefb726f67","fb":"Hue Minh Doan","phone":"","building":"S4","apt":"2305","tag":"Mới","note":""},{"id":"25e31b5d4362","fb":"Phúc Đức","phone":"","building":"S2","apt":"2601","tag":"Mới","note":""},{"id":"78f311a0b179","fb":"Hoàng Thị Mỹ Linh","phone":"","building":"S1","apt":"1211","tag":"Mới","note":""},{"id":"66d3092869d6","fb":"Dung Lai","phone":"","building":"S2","apt":"1708","tag":"Mới","note":""},{"id":"ab12b38b59e2","fb":"Thảo Bảo Hiểm","phone":"","building":"S3","apt":"3804","tag":"Mới","note":""},{"id":"91ba89e4cb66","fb":"Lih Trần","phone":"","building":"S2","apt":"3505","tag":"Mới","note":""}],"orders":[{"id":"8561508f7443","date":"2026-07-01","time":"","customerId":"5dc4d5c7f3db","items":[{"name":"Cá thu","qty":1,"price":215000}],"discount":0,"paid":215000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 2"},{"id":"a382d3d3d15e","date":"2026-07-01","time":"","customerId":"be087898d1a9","items":[{"name":"Cá thu","qty":1,"price":413000}],"discount":0,"paid":413000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 3"},{"id":"5319882dbc86","date":"2026-07-01","time":"","customerId":"e33e2f8be602","items":[{"name":"Cá thu","qty":1,"price":132000}],"discount":0,"paid":132000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 4"},{"id":"88b2d3a02672","date":"2026-07-01","time":"","customerId":"6700e173d1ed","items":[{"name":"Cá thu","qty":1,"price":103000}],"discount":0,"paid":103000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 5"},{"id":"70dcc2f95a5b","date":"2026-07-01","time":"","customerId":"189957505175","items":[{"name":"Cá thu","qty":1,"price":106000}],"discount":0,"paid":106000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 6"},{"id":"80dfddb7d3c4","date":"2026-07-01","time":"","customerId":"efd4edb5cdea","items":[{"name":"Cá thu","qty":1,"price":168000}],"discount":0,"paid":168000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 7"},{"id":"19256f7a86f5","date":"2026-07-01","time":"","customerId":"cc446a0b0dcb","items":[{"name":"Cá thu","qty":1,"price":132000}],"discount":0,"paid":132000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 8"},{"id":"cacdf90adf28","date":"2026-07-01","time":"","customerId":"3bd7b5852341","items":[{"name":"Cá thu","qty":1,"price":326000}],"discount":0,"paid":326000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 9"},{"id":"b6cbfcb8b51b","date":"2026-07-01","time":"","customerId":"0b441fb93b40","items":[{"name":"Cá thu","qty":1,"price":215600}],"discount":0,"paid":215600,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 12"},{"id":"efa1f76fad93","date":"2026-07-01","time":"","customerId":"e33e2f8be602","items":[{"name":"Cá thu","qty":1,"price":264400}],"discount":0,"paid":264400,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 13"},{"id":"017e75034385","date":"2026-07-01","time":"","customerId":"5dc4d5c7f3db","items":[{"name":"Cá thu","qty":1,"price":403600}],"discount":0,"paid":403600,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 14"},{"id":"c3ae199901bd","date":"2026-07-01","time":"","customerId":"efd4edb5cdea","items":[{"name":"Cá thu","qty":1,"price":258400}],"discount":0,"paid":258400,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 15"},{"id":"663219968567","date":"2026-07-01","time":"","customerId":"0b441fb93b40","items":[{"name":"Cá thu","qty":1,"price":460000}],"discount":0,"paid":460000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 16"},{"id":"5e84e1c9a599","date":"2026-07-01","time":"","customerId":"e4d66d00ab16","items":[{"name":"Cá thu","qty":1,"price":182800}],"discount":0,"paid":182800,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 19"},{"id":"287c2911e1f4","date":"2026-07-01","time":"","customerId":"efd4edb5cdea","items":[{"name":"Cá thu","qty":1,"price":238800}],"discount":0,"paid":238800,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 20"},{"id":"5328e76a0011","date":"2026-07-01","time":"","customerId":"1049f763ed26","items":[{"name":"Cá thu","qty":1,"price":118000}],"discount":0,"paid":118000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 21"},{"id":"da2b0ff83b92","date":"2026-07-01","time":"","customerId":"3a46af1144e8","items":[{"name":"Cá thu","qty":1,"price":200800}],"discount":0,"paid":200800,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 22"},{"id":"229de1234307","date":"2026-07-01","time":"","customerId":"e42b9863fc14","items":[{"name":"Cá thu","qty":1,"price":206800}],"discount":0,"paid":206800,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 23"},{"id":"e9970b75e799","date":"2026-07-01","time":"","customerId":"6a7da3e20ade","items":[{"name":"Cá thu","qty":1,"price":422800}],"discount":0,"paid":422800,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 25"},{"id":"255b27aad5c5","date":"2026-07-01","time":"","customerId":"5e2db188a20f","items":[{"name":"Cá thu","qty":1,"price":838000}],"discount":0,"paid":838000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 26"},{"id":"da50f52cf7d3","date":"2026-07-01","time":"","customerId":"1df06c4f3903","items":[{"name":"Cá thu","qty":1,"price":230000}],"discount":0,"paid":230000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 27"},{"id":"daddeb3e229f","date":"2026-07-01","time":"","customerId":"17f436bc3323","items":[{"name":"Cá thu","qty":1,"price":400800}],"discount":0,"paid":400800,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 28"},{"id":"7f0555b4e4bd","date":"2026-07-01","time":"","customerId":"e42b9863fc14","items":[{"name":"Cá thu","qty":1,"price":164800}],"discount":0,"paid":164800,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 29"},{"id":"3dcacbb85116","date":"2026-07-01","time":"","customerId":"5e2db188a20f","items":[{"name":"Cá thu","qty":1,"price":336000}],"discount":0,"paid":336000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 32"},{"id":"b25a5367142c","date":"2026-07-01","time":"","customerId":"0b441fb93b40","items":[{"name":"Cá thu","qty":1,"price":414000}],"discount":0,"paid":414000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 33"},{"id":"a513eca0438f","date":"2026-07-01","time":"","customerId":"efd4edb5cdea","items":[{"name":"Cá thu","qty":1,"price":236000}],"discount":0,"paid":236000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 34"},{"id":"a6daa4129365","date":"2026-07-01","time":"","customerId":"7d7592f303fa","items":[{"name":"Cá đục + cơm","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 38"},{"id":"2afd80396194","date":"2026-07-01","time":"","customerId":"d9205afc334b","items":[{"name":"Cá đục + cơm","qty":1,"price":180000}],"discount":0,"paid":180000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 39"},{"id":"4746b4d4a9e0","date":"2026-07-01","time":"","customerId":"58a3745a5cb9","items":[{"name":"Cá đục + cơm","qty":1,"price":80000}],"discount":0,"paid":80000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 40"},{"id":"2668e06d0bd4","date":"2026-07-01","time":"","customerId":"be087898d1a9","items":[{"name":"Cá đục + cơm","qty":1,"price":80000}],"discount":0,"paid":80000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 41"},{"id":"4904a7640643","date":"2026-07-01","time":"","customerId":"36fbb8ffabbc","items":[{"name":"Cá đục + cơm","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 42"},{"id":"a2c36510d58a","date":"2026-07-01","time":"","customerId":"e61f534af5ec","items":[{"name":"Cá đục + cơm","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 43"},{"id":"519e9d097db0","date":"2026-07-01","time":"","customerId":"3a6202178ad1","items":[{"name":"Cá đục + cơm","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 44"},{"id":"da9719381f16","date":"2026-07-01","time":"","customerId":"9e5816ab0b1a","items":[{"name":"Cá đục + cơm","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 45"},{"id":"f9eea824ad8c","date":"2026-07-01","time":"","customerId":"26cfaabb2f99","items":[{"name":"Cá đục + cơm","qty":1,"price":80000}],"discount":0,"paid":80000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 46"},{"id":"618270306ec2","date":"2026-07-01","time":"","customerId":"0160c68803e9","items":[{"name":"Cá đục + cơm","qty":1,"price":80000}],"discount":0,"paid":80000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 47"},{"id":"8976f5912188","date":"2026-07-01","time":"","customerId":"acde371ec988","items":[{"name":"Cá đục + cơm","qty":1,"price":120000}],"discount":0,"paid":120000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 48"},{"id":"e2b6ca741a99","date":"2026-07-01","time":"","customerId":"8559210d5a18","items":[{"name":"Cá đục + cơm","qty":1,"price":80000}],"discount":0,"paid":80000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 49"},{"id":"e8e5f6fd7455","date":"2026-07-01","time":"","customerId":"b0a3c4d36cd0","items":[{"name":"Cá đục + cơm","qty":1,"price":80000}],"discount":0,"paid":80000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 50"},{"id":"017f8823b280","date":"2026-07-01","time":"","customerId":"cc0c0397848e","items":[{"name":"Cá đục + cơm","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 51"},{"id":"40be00b9b535","date":"2026-07-01","time":"","customerId":"d424f4c290f7","items":[{"name":"Cá đục + cơm","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 52"},{"id":"eb82e85b2e8d","date":"2026-07-01","time":"","customerId":"5e2db188a20f","items":[{"name":"Cá đục + cơm","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 53"},{"id":"bbc1d70182c8","date":"2026-07-01","time":"","customerId":"36fbb8ffabbc","items":[{"name":"Món 130k","qty":1,"price":130000}],"discount":0,"paid":130000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 56"},{"id":"b9d08b026db2","date":"2026-07-01","time":"","customerId":"5853f5d382f6","items":[{"name":"Món 130k","qty":1,"price":130000}],"discount":0,"paid":130000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 57"},{"id":"bf41db676658","date":"2026-07-01","time":"","customerId":"4ac6b306b9cc","items":[{"name":"Món 130k","qty":1,"price":130000}],"discount":0,"paid":130000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 58"},{"id":"633e17ca35e2","date":"2026-07-01","time":"","customerId":"aa5fe27a9f6b","items":[{"name":"Món 130k","qty":1,"price":130000}],"discount":0,"paid":130000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 59"},{"id":"455920e8fd6b","date":"2026-07-01","time":"","customerId":"ecb1178d292c","items":[{"name":"Món 130k","qty":1,"price":130000}],"discount":0,"paid":130000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 61"},{"id":"07aaa8d4890b","date":"2026-07-01","time":"","customerId":"3cf95f56e65f","items":[{"name":"Món 130k","qty":1,"price":130000}],"discount":0,"paid":130000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 62"},{"id":"d18791a5a184","date":"2026-07-01","time":"","customerId":"09ea49a60510","items":[{"name":"Món 130k","qty":1,"price":130000}],"discount":0,"paid":130000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 63"},{"id":"30cb0535f617","date":"2026-07-01","time":"","customerId":"e0944bceb0b8","items":[{"name":"Món 130k","qty":1,"price":130000}],"discount":0,"paid":130000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 64"},{"id":"de8c73aba413","date":"2026-07-13","time":"","customerId":"88f15cfd9c83","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 67"},{"id":"13b504a8c86c","date":"2026-07-13","time":"","customerId":"e18a6595f994","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 68"},{"id":"ec69e495f657","date":"2026-07-13","time":"","customerId":"1df06c4f3903","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 69"},{"id":"79e469fc75a2","date":"2026-07-13","time":"","customerId":"15011ed5f9fb","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 70"},{"id":"e2e3c0ccdd3c","date":"2026-07-13","time":"","customerId":"87db5763dd40","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 71"},{"id":"e9ee82fa3011","date":"2026-07-13","time":"","customerId":"250f6817115b","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 72"},{"id":"79f72ec5db00","date":"2026-07-21","time":"","customerId":"36fbb8ffabbc","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 74"},{"id":"e2747ac7c417","date":"2026-07-21","time":"","customerId":"1fb6766ed1ee","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Excel không ghi tiền, tạm tính 100k – kiểm tra lại","src":"Excel dòng 75"},{"id":"1dd415dae5a7","date":"2026-07-21","time":"","customerId":"c5beb45ba26f","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Excel không ghi tiền, tạm tính 100k – kiểm tra lại","src":"Excel dòng 76"},{"id":"cfbc2e254d7d","date":"2026-07-21","time":"","customerId":"c93836733f51","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 77"},{"id":"84375bff92b3","date":"2026-07-21","time":"","customerId":"4d871f0da523","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 78"},{"id":"baefc6b924c4","date":"2026-07-21","time":"","customerId":"5975a150e3f2","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 79"},{"id":"b29a5a9ec237","date":"2026-07-21","time":"","customerId":"426eab1daec5","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 81"},{"id":"e50554016307","date":"2026-07-21","time":"","customerId":"36fbb8ffabbc","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 82"},{"id":"a9ab8100517c","date":"2026-07-21","time":"","customerId":"fbd145c025c1","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 83"},{"id":"89deb6b685f4","date":"2026-07-21","time":"","customerId":"d9205afc334b","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 84"},{"id":"81e016772cc9","date":"2026-07-21","time":"","customerId":"9768864ba46e","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 86"},{"id":"691e2a1bb0e1","date":"2026-07-21","time":"","customerId":"2ef2da7f30bc","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 87"},{"id":"9a536c0d819d","date":"2026-07-21","time":"","customerId":"940a90aae8ef","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 88"},{"id":"c8326870c319","date":"2026-07-21","time":"","customerId":"c5beb45ba26f","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 89"},{"id":"dfde184afcfe","date":"2026-07-21","time":"","customerId":"87837bd220b8","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp); Ở Thái Hà","src":"Excel dòng 91"},{"id":"1b6ebbcb1dae","date":"2026-07-21","time":"","customerId":"c5beb45ba26f","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 92"},{"id":"217d178f5809","date":"2026-07-21","time":"","customerId":"b91a055031c9","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 93"},{"id":"a4e665d01223","date":"2026-07-21","time":"","customerId":"d9205afc334b","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 94"},{"id":"10d07432e967","date":"2026-07-21","time":"","customerId":"88f15cfd9c83","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 96"},{"id":"8e2465aa50e9","date":"2026-07-21","time":"","customerId":"9f3cd9a9ca76","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 97"},{"id":"46aa7ea6184e","date":"2026-07-21","time":"","customerId":"0f882c27bc70","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 98"},{"id":"cef511f555a5","date":"2026-07-21","time":"","customerId":"6a7da3e20ade","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 99"},{"id":"6f240c3a4822","date":"2026-07-21","time":"","customerId":"6a6200bbe2ed","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 100"},{"id":"27ab9e0a8158","date":"2026-07-21","time":"","customerId":"3e4788b89a14","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 102"},{"id":"292ce71d1275","date":"2026-07-21","time":"","customerId":"d40b44061ebe","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 103"},{"id":"6d9e998a6a40","date":"2026-07-21","time":"","customerId":"97db8d53eabf","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 104"},{"id":"26d5b85f585b","date":"2026-07-21","time":"","customerId":"1a0aa838a2f0","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 105"},{"id":"fc4788693879","date":"2026-07-21","time":"","customerId":"d9205afc334b","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 106"},{"id":"78403f6c4133","date":"2026-07-27","time":"","customerId":"7ffa21ca12aa","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 109"},{"id":"93d8762e45dc","date":"2026-07-27","time":"","customerId":"e3be282d3baa","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 110"},{"id":"93c7749c96b1","date":"2026-07-27","time":"","customerId":"e9992266ae08","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 111"},{"id":"03435fbe6e32","date":"2026-07-27","time":"","customerId":"5e2db188a20f","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 112"},{"id":"ec1df984cb34","date":"2026-07-27","time":"","customerId":"d424f4c290f7","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 113"},{"id":"af5f279bca3f","date":"2026-07-27","time":"","customerId":"fdc3b0d4ab8e","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 114"},{"id":"c9d7d326d8cb","date":"2026-07-27","time":"","customerId":"3ead78b59ada","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 115"},{"id":"c6fc0a9a5d6b","date":"2026-09-23","time":"","customerId":"151cddc59c1a","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 118"},{"id":"df1a9d072d32","date":"2026-09-23","time":"","customerId":"d40b44061ebe","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 119"},{"id":"ffee96092ca8","date":"2026-09-23","time":"","customerId":"9f3cd9a9ca76","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 120"},{"id":"fbc292fd098b","date":"2026-09-23","time":"","customerId":"0eab9283bca9","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 121"},{"id":"a12e85908866","date":"2026-09-23","time":"","customerId":"9f3cd9a9ca76","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 122"},{"id":"9a0997d9204e","date":"2026-09-23","time":"","customerId":"d583aad92a00","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 123"},{"id":"920cbe01a627","date":"2026-09-23","time":"","customerId":"297512da208c","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 124"},{"id":"114dc9611c05","date":"2026-09-23","time":"","customerId":"3a46af1144e8","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 125"},{"id":"ebc8b8a497de","date":"2026-09-23","time":"","customerId":"acde371ec988","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 126"},{"id":"9efef6b12f9d","date":"2026-10-06","time":"","customerId":"940a90aae8ef","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 128"},{"id":"03e4fdb5d52e","date":"2026-10-06","time":"","customerId":"39d1c4d63ed5","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 129"},{"id":"d5483396bc5a","date":"2026-10-06","time":"","customerId":"6eb08f502dfd","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 130"},{"id":"5da123077ec7","date":"2026-10-06","time":"","customerId":"e33e2f8be602","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 131"},{"id":"dd4d9a1cd027","date":"2026-10-13","time":"","customerId":"940a90aae8ef","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 133"},{"id":"8f6c66e23604","date":"2026-10-13","time":"","customerId":"151cddc59c1a","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 134"},{"id":"8ef30b0c223e","date":"2026-10-13","time":"","customerId":"1df943ef4209","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 135"},{"id":"ab4e27b919de","date":"2026-10-13","time":"","customerId":"bf556229fce7","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 136"},{"id":"664762b5eaa2","date":"2026-10-13","time":"","customerId":"9f3cd9a9ca76","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 137"},{"id":"20187d614b05","date":"2026-11-03","time":"","customerId":"1df943ef4209","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 140"},{"id":"0031783c5027","date":"2026-11-03","time":"","customerId":"151cddc59c1a","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 141"},{"id":"971637888b2b","date":"2026-11-03","time":"","customerId":"e1e24e916317","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 142"},{"id":"37e7831fd2ed","date":"2026-11-03","time":"","customerId":"916e8e98fa4d","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 143"},{"id":"5679e924ac89","date":"2026-11-05","time":"","customerId":"e4eaa3d1bb88","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 145"},{"id":"2cff21944e56","date":"2026-11-05","time":"","customerId":"f02d60ae1b07","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 146"},{"id":"93fdb34a1dd6","date":"2026-11-05","time":"","customerId":"219088bbb9aa","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 147"},{"id":"50f37b742e17","date":"2026-11-05","time":"","customerId":"39d1c4d63ed5","items":[{"name":"Cá kho","qty":2,"price":100000}],"discount":0,"paid":200000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 148"},{"id":"dfe4180377b6","date":"2026-11-11","time":"","customerId":"5e2db188a20f","items":[{"name":"Mật mía","qty":1,"price":30000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Excel ghi \u00271 chai mật\u0027, tạm tính 30k – kiểm tra lại","src":"Excel dòng 150"},{"id":"ca164247384b","date":"2026-11-11","time":"","customerId":"9f3cd9a9ca76","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Excel không ghi tiền, tạm tính 100k – kiểm tra lại","src":"Excel dòng 151"},{"id":"62ae2ded20b6","date":"2026-11-11","time":"","customerId":"81dfc1185b88","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Excel không ghi tiền (ghi \u0027?\u0027), tạm tính 100k – kiểm tra lại","src":"Excel dòng 152"},{"id":"cdf5ecdb3cc0","date":"2026-11-18","time":"","customerId":"81dfc1185b88","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 155"},{"id":"122964940439","date":"2026-11-18","time":"","customerId":"219088bbb9aa","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 156"},{"id":"8b56f2a48c7a","date":"2026-11-18","time":"","customerId":"a22351249e9f","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 157"},{"id":"91c8f73d1885","date":"2026-11-18","time":"","customerId":"940a90aae8ef","items":[{"name":"Cá kho","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 158"},{"id":"565bb84482dd","date":"2026-07-24","time":"","customerId":"5e2db188a20f","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 200"},{"id":"e7bc40b53177","date":"2026-07-24","time":"","customerId":"df1fad1a929d","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 201"},{"id":"f07ded8749fe","date":"2026-07-24","time":"","customerId":"776d664695da","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 202"},{"id":"2bbcec3e5fab","date":"2026-07-24","time":"","customerId":"d2a540bf044f","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 204"},{"id":"27971e8073a1","date":"2026-07-24","time":"","customerId":"e18a6595f994","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 205"},{"id":"ff41b592b508","date":"2026-07-24","time":"","customerId":"d5a9b003d5e4","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 206"},{"id":"877b2e2c2ad7","date":"2026-07-24","time":"","customerId":"4b7926578ae7","items":[{"name":"Giả cầy","qty":3,"price":100000}],"discount":0,"paid":300000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ở O Huệ","src":"Excel dòng 207"},{"id":"95f7c47d4df4","date":"2026-07-29","time":"","customerId":"5dc4d5c7f3db","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 209"},{"id":"f75ac39e15f3","date":"2026-07-29","time":"","customerId":"ecb1178d292c","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 210"},{"id":"36e232026066","date":"2026-07-29","time":"","customerId":"98016be9ac4b","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 212"},{"id":"b0b0394ed958","date":"2026-07-30","time":"","customerId":"d6889ad91047","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 214"},{"id":"7b8bb4d656a7","date":"2026-07-30","time":"","customerId":"87837bd220b8","items":[{"name":"Giả cầy","qty":2,"price":100000},{"name":"Khác","qty":1,"price":60000}],"discount":0,"paid":260000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ở Thái Hà","src":"Excel dòng 215"},{"id":"f2763ae6bd39","date":"2026-07-30","time":"","customerId":"ce1e2eec542c","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 216"},{"id":"a2bc81114ba0","date":"2026-07-30","time":"","customerId":"42aa122a3e69","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 217"},{"id":"cc5d8c0df6eb","date":"2026-07-30","time":"","customerId":"81dfc1185b88","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 220"},{"id":"8249ca347ecb","date":"2026-07-30","time":"","customerId":"87837bd220b8","items":[{"name":"Giả cầy","qty":2,"price":100000}],"discount":0,"paid":200000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp); Ở Thái Hà","src":"Excel dòng 221"},{"id":"49b0e8f5c7ce","date":"2026-07-30","time":"","customerId":"344dfea8965c","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 222"},{"id":"c322b7c1f982","date":"2026-07-30","time":"","customerId":"3e4788b89a14","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 223"},{"id":"95645f4cafde","date":"2026-07-30","time":"","customerId":"fee399424b02","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 225"},{"id":"d170e3772856","date":"2026-07-30","time":"","customerId":"cb621cfb8f87","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 226"},{"id":"94676fd902e5","date":"2026-07-30","time":"","customerId":"827d7e176693","items":[{"name":"Giả cầy","qty":1,"price":100000},{"name":"Khác","qty":1,"price":20000}],"discount":0,"paid":120000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 227"},{"id":"e496b6b084f9","date":"2026-07-30","time":"","customerId":"164903f1fe2c","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 228"},{"id":"afebb72bb718","date":"2026-07-30","time":"","customerId":"164903f1fe2c","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 230"},{"id":"b264e4cb8063","date":"2026-07-30","time":"","customerId":"5e2db188a20f","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 231"},{"id":"ef311ad7a199","date":"2026-07-30","time":"","customerId":"d6889ad91047","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 232"},{"id":"c5819d7cf315","date":"2026-07-30","time":"","customerId":"87837bd220b8","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp); Ở Thái Hà","src":"Excel dòng 234"},{"id":"c74570e1ed6e","date":"2026-07-30","time":"","customerId":"36fbb8ffabbc","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 235"},{"id":"9299518e3518","date":"2026-07-30","time":"","customerId":"164903f1fe2c","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 236"},{"id":"f0804408b12f","date":"2026-07-30","time":"","customerId":"ef9040197eba","items":[{"name":"Khác","qty":1,"price":50000}],"discount":0,"paid":50000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 237"},{"id":"29a8029bf22a","date":"2026-07-30","time":"","customerId":"67d0abd72360","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 239"},{"id":"d629dbfbb42e","date":"2026-07-30","time":"","customerId":"e18a6595f994","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 240"},{"id":"72227078fe9d","date":"2026-07-30","time":"","customerId":"1311e163ff2e","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 241"},{"id":"da26bdafafab","date":"2026-07-06","time":"","customerId":"42aa122a3e69","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 244"},{"id":"d298d98517bf","date":"2026-07-06","time":"","customerId":"0f882c27bc70","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 245"},{"id":"1b1adc032a62","date":"2026-07-06","time":"","customerId":"3c1219f197a5","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 246"},{"id":"3079bf4a5d7b","date":"2026-07-06","time":"","customerId":"164903f1fe2c","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 247"},{"id":"f89c96ba47d1","date":"2026-07-07","time":"","customerId":"3e4788b89a14","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 249"},{"id":"940156487340","date":"2026-07-07","time":"","customerId":"bb86d7192082","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 250"},{"id":"6bd820aebc75","date":"2026-07-07","time":"","customerId":"164903f1fe2c","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 251"},{"id":"cdf95a279e5f","date":"2026-07-07","time":"","customerId":"1a0aa838a2f0","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 252"},{"id":"90bcb0678c7a","date":"2026-07-07","time":"","customerId":"4872656cd41d","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 253"},{"id":"77b453772d91","date":"2026-07-07","time":"","customerId":"ac6d9076cb78","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 255"},{"id":"e9ae42ba6f20","date":"2026-07-07","time":"","customerId":"248536048cb5","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 256"},{"id":"07e154c5a573","date":"2026-07-07","time":"","customerId":"248536048cb5","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 257"},{"id":"e9ba372f7a2e","date":"2026-07-07","time":"","customerId":"87837bd220b8","items":[{"name":"Giả cầy","qty":2,"price":100000}],"discount":0,"paid":200000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp); Ở Thái Hà","src":"Excel dòng 258"},{"id":"c9943aa1a0bc","date":"2026-07-07","time":"","customerId":"5e2db188a20f","items":[{"name":"Giả cầy","qty":1,"price":100000},{"name":"Khác","qty":1,"price":30000}],"discount":0,"paid":130000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp); 1 mật mía","src":"Excel dòng 260"},{"id":"2b7f048d8cdc","date":"2026-07-07","time":"","customerId":"d9205afc334b","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 261"},{"id":"b924a642b7ae","date":"2026-07-07","time":"","customerId":"1d3211f5a656","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 262"},{"id":"ebac71ad1973","date":"2026-07-07","time":"","customerId":"98082644107a","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 263"},{"id":"e335c4bb48fa","date":"2026-07-07","time":"","customerId":"e3cd202994e0","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"Ngày không ghi trong Excel (tạm xếp)","src":"Excel dòng 264"},{"id":"c5b756838934","date":"2026-07-14","time":"","customerId":"4872656cd41d","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 266"},{"id":"bbc6f72b5558","date":"2026-07-14","time":"","customerId":"1df943ef4209","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 267"},{"id":"5c55ebdea3e9","date":"2026-07-14","time":"","customerId":"d52c7c77aba0","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 268"},{"id":"8da3430ab079","date":"2026-07-14","time":"","customerId":"164903f1fe2c","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 269"},{"id":"660e3723f29b","date":"2026-07-14","time":"","customerId":"c206baab01ec","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 270"},{"id":"04d473524492","date":"2026-07-14","time":"","customerId":"b27c238a7ac5","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 271"},{"id":"c69e795d0e40","date":"2026-07-16","time":"","customerId":"e18a6595f994","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 273"},{"id":"5c49ea3711be","date":"2026-07-16","time":"","customerId":"6700e173d1ed","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 274"},{"id":"40081fa305f1","date":"2026-07-16","time":"","customerId":"b17d6b965265","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 275"},{"id":"8ed18db1b9ee","date":"2026-07-16","time":"","customerId":"cc5f7ca39c0e","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 276"},{"id":"2e36a046d6b2","date":"2026-07-16","time":"","customerId":"dd1afde1dd9f","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 277"},{"id":"0e14db7ca255","date":"2026-07-16","time":"","customerId":"58edceb2138a","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 278"},{"id":"777a43902798","date":"2026-07-16","time":"","customerId":"17ca114db2dc","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 279"},{"id":"93310e78f6f5","date":"2026-07-21","time":"","customerId":"88f15cfd9c83","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 281"},{"id":"6c535610a409","date":"2026-07-21","time":"","customerId":"ac6d9076cb78","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 282"},{"id":"9f84abc83184","date":"2026-07-21","time":"","customerId":"65fb56c2a878","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 283"},{"id":"3e944ad69f74","date":"2026-07-21","time":"","customerId":"1df06c4f3903","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 284"},{"id":"f94be5e3cd21","date":"2026-07-21","time":"","customerId":"525f8ce45f95","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 285"},{"id":"f88fe122734a","date":"2026-07-21","time":"","customerId":"7e35ba4c6829","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 286"},{"id":"98bd81bc99d3","date":"2026-08-05","time":"","customerId":"cc5f7ca39c0e","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 288"},{"id":"d7576ea2b866","date":"2026-08-05","time":"","customerId":"8119b0dede66","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 289"},{"id":"aa00cbeebf86","date":"2026-08-05","time":"","customerId":"1d3211f5a656","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 290"},{"id":"c623d4caf3e2","date":"2026-08-05","time":"","customerId":"1df06c4f3903","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 291"},{"id":"e487977efd5a","date":"2026-08-05","time":"","customerId":"1a0aa838a2f0","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 292"},{"id":"991596781ff3","date":"2026-09-22","time":"","customerId":"ac6d9076cb78","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 294"},{"id":"b349b4cf8a47","date":"2026-09-22","time":"","customerId":"451b393020d5","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 295"},{"id":"a659b8924dc7","date":"2026-09-22","time":"","customerId":"4d231831baf5","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 296"},{"id":"62bc3f3a4d8c","date":"2026-09-22","time":"","customerId":"23128e9170fd","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 297"},{"id":"a604be5a8c87","date":"2026-09-22","time":"","customerId":"5dc4d5c7f3db","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 298"},{"id":"70c7db598769","date":"2026-10-07","time":"","customerId":"87837bd220b8","items":[{"name":"Giả cầy","qty":1,"price":100000},{"name":"Khác","qty":1,"price":30000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 300"},{"id":"31d0680736c6","date":"2026-10-07","time":"","customerId":"fbd145c025c1","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 301"},{"id":"a7982b0addaf","date":"2026-10-07","time":"","customerId":"ea9fb47b12c5","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 302"},{"id":"89df71c4d844","date":"2026-10-07","time":"","customerId":"3f7a20064c38","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 303"},{"id":"c0461edc5256","date":"2026-10-07","time":"","customerId":"164903f1fe2c","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 304"},{"id":"78d94f8c1a5a","date":"2026-10-12","time":"","customerId":"ed6977c03833","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 307"},{"id":"7774c269d47a","date":"2026-10-12","time":"","customerId":"899e276ed37e","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 308"},{"id":"0ac9e6502160","date":"2026-10-12","time":"","customerId":"827d7e176693","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 309"},{"id":"754a10fe4526","date":"2026-10-12","time":"","customerId":"219088bbb9aa","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 310"},{"id":"ed2cdeff1b75","date":"2026-10-14","time":"","customerId":"1311e163ff2e","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 312"},{"id":"5835c7daabe1","date":"2026-10-14","time":"","customerId":"c206baab01ec","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 313"},{"id":"2124b2315f8f","date":"2026-10-14","time":"","customerId":"9f3cd9a9ca76","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 314"},{"id":"fe15316c02a0","date":"2026-10-14","time":"","customerId":"bb86d7192082","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 315"},{"id":"f47d4fc8fb1b","date":"2026-10-19","time":"","customerId":"5e2db188a20f","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 317"},{"id":"57fd822a095c","date":"2026-10-19","time":"","customerId":"ccbefb726f67","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 318"},{"id":"313581a0d6c0","date":"2026-10-19","time":"","customerId":"25e31b5d4362","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 319"},{"id":"087bd5eb7f88","date":"2026-10-19","time":"","customerId":"c206baab01ec","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 320"},{"id":"bde5774086df","date":"2026-10-19","time":"","customerId":"4872656cd41d","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 321"},{"id":"d4eac9e550b3","date":"2026-11-13","time":"","customerId":"e18a6595f994","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 323"},{"id":"6222b2fe171a","date":"2026-11-13","time":"","customerId":"1df06c4f3903","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":100000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 324"},{"id":"65d617830ce9","date":"2026-11-13","time":"","customerId":"78f311a0b179","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 325"},{"id":"a8a9004e9657","date":"2026-11-13","time":"","customerId":"66d3092869d6","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 326"},{"id":"79cbc441e913","date":"2026-11-16","time":"","customerId":"4b7926578ae7","items":[{"name":"Giả cầy","qty":2,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 328"},{"id":"91a6375a1e8d","date":"2026-11-16","time":"","customerId":"827d7e176693","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 329"},{"id":"f50176c74f46","date":"2026-11-16","time":"","customerId":"d9205afc334b","items":[{"name":"Giả cầy","qty":1,"price":100000}],"discount":0,"paid":0,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 330"},{"id":"9b3ded712bc9","date":"2026-07-15","time":"","customerId":"164903f1fe2c","items":[{"name":"Thịt kho","qty":1,"price":110000}],"discount":0,"paid":110000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 340"},{"id":"56a2ae1033ae","date":"2026-07-15","time":"","customerId":"36fbb8ffabbc","items":[{"name":"Thịt kho","qty":1,"price":110000}],"discount":0,"paid":110000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 341"},{"id":"39d2fb0130ba","date":"2026-07-15","time":"","customerId":"9f3cd9a9ca76","items":[{"name":"Thịt kho","qty":1,"price":110000}],"discount":0,"paid":110000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 342"},{"id":"f9917b41a8f2","date":"2026-07-23","time":"","customerId":"36fbb8ffabbc","items":[{"name":"Thịt kho","qty":1,"price":135000}],"discount":0,"paid":135000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 344"},{"id":"4f2f336d2bd4","date":"2026-07-23","time":"","customerId":"ab12b38b59e2","items":[{"name":"Thịt kho","qty":1,"price":135000}],"discount":0,"paid":135000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 345"},{"id":"91eee46de89b","date":"2026-07-23","time":"","customerId":"91ba89e4cb66","items":[{"name":"Thịt kho","qty":1,"price":135000}],"discount":0,"paid":135000,"notified":true,"cancelled":false,"payment":"Chuyển khoản","channel":"Facebook","note":"","src":"Excel dòng 346"}],"transfers":[{"id":"b77cf455a6ef","date":"2026-07-01","amount":1595000,"at":"2026-07-01T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 1)"},{"id":"3c51ff3ca6d6","date":"2026-07-01","amount":1602000,"at":"2026-07-01T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 11)"},{"id":"a1d9b2a4ef4e","date":"2026-07-01","amount":740400,"at":"2026-07-01T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 18)"},{"id":"60201408e427","date":"2026-07-01","amount":1891600,"at":"2026-07-01T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 24)"},{"id":"cad10f207a1f","date":"2026-07-01","amount":414000,"at":"2026-07-01T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 30)"},{"id":"de6029d8212a","date":"2026-07-01","amount":236000,"at":"2026-07-01T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 31)"},{"id":"839d00fc2eee","date":"2026-07-01","amount":336000,"at":"2026-07-01T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 32)"},{"id":"dd41ce304e9a","date":"2026-07-01","amount":1580000,"at":"2026-07-01T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 36)"},{"id":"f77c7886120a","date":"2026-07-01","amount":520000,"at":"2026-07-01T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 55)"},{"id":"72b7e0a5a590","date":"2026-07-01","amount":520000,"at":"2026-07-01T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 60)"},{"id":"fd9c6f3b7635","date":"2026-07-21","amount":300000,"at":"2026-07-21T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 65)"},{"id":"d6722473e086","date":"2026-07-13","amount":600000,"at":"2026-07-13T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 66)"},{"id":"7fadca4258fc","date":"2026-07-21","amount":500000,"at":"2026-07-21T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 73)"},{"id":"f01ead76a179","date":"2026-07-21","amount":400000,"at":"2026-07-21T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 80)"},{"id":"f319052a36e6","date":"2026-07-21","amount":400000,"at":"2026-07-21T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 85)"},{"id":"56b0c5f00426","date":"2026-07-21","amount":400000,"at":"2026-07-21T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 90)"},{"id":"4b5203ecbabd","date":"2026-07-21","amount":500000,"at":"2026-07-21T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 95)"},{"id":"fe0551e9cd89","date":"2026-07-21","amount":500000,"at":"2026-07-21T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 101)"},{"id":"64833370ba38","date":"2026-09-23","amount":400000,"at":"2026-09-23T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 107)"},{"id":"bdaf26eb2a8f","date":"2026-07-27","amount":1300000,"at":"2026-07-27T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 108)"},{"id":"ad0a2ca2585b","date":"2026-09-15","amount":500000,"at":"2026-09-15T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 116)"},{"id":"80e1eb758523","date":"2026-09-23","amount":300000,"at":"2026-09-23T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 117)"},{"id":"b98908f61c3b","date":"2026-10-06","amount":400000,"at":"2026-10-06T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 127)"},{"id":"3c1a2a5d9281","date":"2026-10-13","amount":500000,"at":"2026-10-13T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 132)"},{"id":"83996fcd8a14","date":"2026-11-03","amount":400000,"at":"2026-11-03T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 139)"},{"id":"486a36f8c881","date":"2026-11-05","amount":500000,"at":"2026-11-05T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 144)"},{"id":"392e42cbb796","date":"2026-11-18","amount":400000,"at":"2026-11-18T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 154)"},{"id":"e6726762b908","date":"2026-07-24","amount":300000,"at":"2026-07-24T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 199)"},{"id":"19f210198798","date":"2026-07-24","amount":600000,"at":"2026-07-24T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 203)"},{"id":"e3811742fc86","date":"2026-07-29","amount":300000,"at":"2026-07-29T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 208)"},{"id":"1a0bab638cd0","date":"2026-07-30","amount":560000,"at":"2026-07-30T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 213)"},{"id":"22162759982d","date":"2026-07-30","amount":500000,"at":"2026-07-30T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 219)"},{"id":"d62ffa865c66","date":"2026-07-30","amount":420000,"at":"2026-07-30T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 224)"},{"id":"6a845345c57f","date":"2026-07-30","amount":300000,"at":"2026-07-30T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 229)"},{"id":"ef6c1e4ee528","date":"2026-07-30","amount":350000,"at":"2026-07-30T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 233)"},{"id":"082c83a00c7a","date":"2026-07-30","amount":300000,"at":"2026-07-30T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 238)"},{"id":"8f8a3e593f2c","date":"2026-07-06","amount":400000,"at":"2026-07-06T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 242)"},{"id":"35b8df8bb4b2","date":"2026-07-07","amount":500000,"at":"2026-07-07T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 248)"},{"id":"524dcf99c68b","date":"2026-07-07","amount":500000,"at":"2026-07-07T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 254)"},{"id":"32a30182dda7","date":"2026-07-07","amount":530000,"at":"2026-07-07T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 259)"},{"id":"05222a776401","date":"2026-07-14","amount":600000,"at":"2026-07-14T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 265)"},{"id":"275098c4c667","date":"2026-07-16","amount":700000,"at":"2026-07-16T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 272)"},{"id":"a1eeb27a7b16","date":"2026-07-21","amount":600000,"at":"2026-07-21T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 280)"},{"id":"68fc0880bf0a","date":"2026-08-05","amount":500000,"at":"2026-08-05T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 287)"},{"id":"5be8e1f7fdd4","date":"2026-10-07","amount":530000,"at":"2026-10-07T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 299)"},{"id":"fc9be0c8a042","date":"2026-10-12","amount":400000,"at":"2026-10-12T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 306)"},{"id":"63bb2c01532f","date":"2026-10-14","amount":400000,"at":"2026-10-14T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 311)"},{"id":"8835db910dd2","date":"2026-10-19","amount":500000,"at":"2026-10-19T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 316)"},{"id":"e24e039d2858","date":"2026-11-13","amount":400000,"at":"2026-11-13T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 322)"},{"id":"eb3a902e54ca","date":"2026-11-16","amount":400000,"at":"2026-11-16T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 327)"},{"id":"79eb73f6f443","date":"2026-07-15","amount":330000,"at":"2026-07-15T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 339)"},{"id":"8c7d9e715dbc","date":"2026-07-23","amount":405000,"at":"2026-07-23T21:00:00","note":"Nhập từ Excel (ô đỏ dòng 343)"}]}</script>
+<script>
+/* ===== Món bán & giá — sửa ở đây nếu đổi giá ===== */
+const PRODUCTS=[{name:'Giả cầy',price:100000},{name:'Cá kho',price:100000}];
+
+const KEY='sobanhang_v1';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const fmt=n=>new Intl.NumberFormat('vi-VN').format(Math.round(n||0))+'đ';
+const fmtK=n=>n>=1e6?(n/1e6).toFixed(1).replace('.0','')+'tr':n>=1e3?Math.round(n/1e3)+'k':String(Math.round(n));
+const iso=d=>{d=new Date(d);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+const today=()=>iso(new Date());
+const addDays=(s,n)=>{const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return iso(d)};
+const diffDays=(a,b)=>Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/864e5);
+const dmy=s=>s?s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4):'';
+const dm=s=>s.slice(8,10)+'/'+s.slice(5,7);
+const WD=['CN','T2','T3','T4','T5','T6','T7'];
+const wd=s=>WD[new Date(s+'T00:00:00').getDay()];
+const normB=s=>String(s||'').trim().replace(/^tòa\s*/i,'').toUpperCase();
+const normP=s=>String(s||'').replace(/[\s.\-]/g,'');
+
+/* ---- tính tiền ---- */
+const total=o=>Math.max(0,o.items.reduce((s,i)=>s+(+i.qty||0)*(+i.price||0),0)-(+o.discount||0));
+const qtyOf=(o,name)=>o.items.filter(i=>i.name===name).reduce((s,i)=>s+(+i.qty||0),0);
+const live=o=>!o.cancelled;
+const paidOf=o=>live(o)?Math.min(+o.paid||0,total(o)):0;
+const debtOf=o=>live(o)?Math.max(0,total(o)-(+o.paid||0)):0;
+
+/* ---- khách ---- */
+const aptText=c=>c&&(c.building||c.apt)?`${c.building?'Tòa '+c.building:''}${c.building&&c.apt?' · ':''}${c.apt||''}`:'';
+const aptHtml=c=>aptText(c)?`<span class="apt">${esc(aptText(c))}</span>`:'<span class="muted">—</span>';
+const aptKey=c=>(c.building||'~')+'|'+String(c.apt||'').padStart(6,'0');
+
+let db=load();
+function seed(){try{const d=JSON.parse($('#seedData').textContent);if(Array.isArray(d.orders))return migrate(d)}catch(e){}return null}
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.orders))return migrate(d)}catch(e){}
+  const s=seed();if(s){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}return s}
+  return{customers:[],orders:[],transfers:[]};
+}
+function migrate(d){
+  d.transfers=Array.isArray(d.transfers)?d.transfers:[];
+  d.customers.forEach(c=>{if(c.fb==null){c.fb=c.name||'';delete c.name}});
+  d.orders.forEach(o=>{if(o.paid==null){o.cancelled=o.status==='cancel';o.paid=o.status==='done'?total(o):0;o.notified=true;delete o.status}});
+  return d;
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){alert('Không lưu được vào trình duyệt. Hãy dùng "Sao lưu (JSON)" để giữ dữ liệu.')}render()}
+const custById=id=>db.customers.find(c=>c.id===id);
+const custName=c=>c?(c.fb||c.phone||aptText(c)||'(chưa có tên)'):'Khách lẻ';
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),1800)}
+
+function custStats(){
+  const m={};
+  for(const o of db.orders){
+    if(!o.customerId||!live(o))continue;
+    const s=m[o.customerId]||(m[o.customerId]={count:0,spent:0,debt:0,first:o.date,last:o.date,debtDays:[]});
+    s.count++;s.spent+=total(o);
+    const d=debtOf(o);if(d){s.debt+=d;s.debtDays.push(o.date)}
+    if(o.date<s.first)s.first=o.date;if(o.date>s.last)s.last=o.date;
+  }
+  return m;
+}
+function dayInfo(d){
+  const all=db.orders.filter(o=>o.date===d), os=all.filter(live);
+  const r={orders:os,all,n:os.length,rev:0,paid:0,debt:0,debtN:0,unnotified:os.filter(o=>!o.notified).length};
+  os.forEach(o=>{r.rev+=total(o);r.paid+=paidOf(o);const x=debtOf(o);if(x){r.debt+=x;r.debtN++}});
+  PRODUCTS.forEach(p=>r[p.name]=os.reduce((s,o)=>s+qtyOf(o,p.name),0));
+  r.transfers=db.transfers.filter(t=>t.date===d);
+  r.sent=r.transfers.reduce((s,t)=>s+(+t.amount||0),0);
+  r.toSend=r.rev-r.sent; // chuyển mẹ đủ doanh thu ngày (kể cả phần khách chưa trả – mình ứng trước)
+  return r;
+}
+function allDays(){return[...new Set([...db.orders.map(o=>o.date),...db.transfers.map(t=>t.date)])].sort().reverse()}
+function globalMoney(){
+  let debt=0,debtCust=new Set(),toSend=0,daysToSend=0;
+  db.orders.forEach(o=>{const x=debtOf(o);if(x){debt+=x;debtCust.add(o.customerId||'_'+o.id)}});
+  allDays().forEach(d=>{const i=dayInfo(d);if(i.toSend>0){toSend+=i.toSend;daysToSend++}});
+  return{debt,debtCust:debtCust.size,toSend,daysToSend};
+}
+
+/* ---------- Tabs ---------- */
+let tab='day';
+function go(t){
+  tab=t;
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));
+  ['day','money','customers','orders','stats'].forEach(x=>$('#tab-'+x).hidden=x!==t);
+  render();
+}
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>go(b.dataset.tab));
+
+/* ---------- Render ---------- */
+function render(){
+  refreshLists();renderAlerts();
+  ({day:renderDay,money:renderMoney,customers:renderCustomers,orders:renderOrders,stats:renderStats})[tab]();
+}
+
+function renderAlerts(){
+  const g=globalMoney(), d=$('#viewDate').value, di=dayInfo(d);
+  const b=$('#moneyBadge');b.hidden=!g.debtCust;b.textContent=g.debtCust;
+  const a=[];
+  if(di.unnotified)a.push(`<div class="alert warn" data-go="momMsg"><span>📣 ${di.unnotified} đơn ngày ${dm(d)} <b>chưa báo mẹ</b></span><span class="btn sm">Soạn tin</span></div>`);
+  a.push(g.debt?`<div class="alert bad" data-go="money"><span>🔴 ${g.debtCust} khách còn nợ</span><b>${fmt(g.debt)}</b></div>`:`<div class="alert good" data-go="money"><span>✅ Không khách nào nợ</span></div>`);
+  a.push(g.toSend>0?`<div class="alert warn" data-go="money"><span>💸 Cần chuyển mẹ (${g.daysToSend} ngày)</span><b>${fmt(g.toSend)}</b></div>`:`<div class="alert good" data-go="money"><span>✅ Đã chuyển mẹ đủ</span></div>`);
+  $('#alerts').innerHTML=a.join('');
+}
+
+function payTog(o){
+  if(o.cancelled)return '<span class="pill p-bad">Hủy</span>';
+  const t=total(o),p=+o.paid||0;
+  if(p>=t)return `<button class="tog yes" data-tog="paid" data-id="${o.id}" title="Bấm để chuyển về chưa trả">✓ Đã trả</button>`;
+  if(p>0)return `<button class="tog part" data-tog="paid" data-id="${o.id}" title="Bấm để đánh dấu đã trả đủ">Nợ ${fmtK(t-p)}</button>`;
+  return `<button class="tog no-bad" data-tog="paid" data-id="${o.id}" title="Bấm khi khách đã chuyển tiền">Chưa trả</button>`;
+}
+const momTog=o=>o.cancelled?'':o.notified?`<button class="tog yes" data-tog="notified" data-id="${o.id}">✓ Đã báo</button>`:`<button class="tog" data-tog="notified" data-id="${o.id}">Chưa báo</button>`;
+const PNAMES=PRODUCTS.map(p=>p.name);
+const otherItems=o=>o.items.filter(i=>!PNAMES.includes(i.name));
+function otherItemsHtml(o){const x=otherItems(o);return x.length?`<div style="font-size:12px"><span class="pill p-tag">${x.map(i=>esc(i.name)+(i.qty>1?' ×'+i.qty:'')+' '+fmtK(i.qty*i.price)).join(' · ')}</span></div>`:''}
+function orderRow(o,first){
+  const c=custById(o.customerId);
+  return `<tr class="click${o.cancelled?' cancel':''}" data-order="${o.id}">
+    <td style="white-space:nowrap">${first}</td>
+    <td>${aptHtml(c)}</td>
+    <td>${esc(custName(c))}${otherItemsHtml(o)}${o.note?`<div class="muted" style="font-size:12px">📝 ${esc(o.note)}</div>`:''}</td>
+    ${PRODUCTS.map(p=>`<td class="num">${qtyOf(o,p.name)||'<span class="muted">–</span>'}</td>`).join('')}
+    <td class="num">${fmt(total(o))}</td>
+    <td class="c">${momTog(o)}</td><td class="c">${payTog(o)}</td></tr>`;
+}
+function footRow(os,label){
+  const v=os.filter(live);
+  return `<tr><td colspan="3">${label}</td>${PRODUCTS.map(p=>`<td class="num">${v.reduce((s,o)=>s+qtyOf(o,p.name),0)}</td>`).join('')}<td class="num">${fmt(v.reduce((s,o)=>s+total(o),0))}</td><td class="c" style="font-weight:400">${v.filter(o=>o.notified).length}/${v.length}</td><td class="c" style="font-weight:400">${v.filter(o=>!debtOf(o)).length}/${v.length}</td></tr>`;
+}
+
+function dayStatus(i){
+  if(i.debt>0)return{cls:'st-debt',txt:'nợ '+fmtK(i.debt)};
+  if(i.toSend>0)return{cls:'st-mom',txt:'mẹ thiếu '+fmtK(i.toSend)};
+  if(i.toSend<0)return{cls:'st-mom',txt:'mẹ dư '+fmtK(-i.toSend)};
+  if(i.unnotified)return{cls:'st-notify',txt:i.unnotified+' chưa báo'};
+  return{cls:'st-ok',txt:'✓ xong'};
+}
+const DAY_FILTERS={'':()=>true,issue:i=>i.debt>0||i.toSend!==0||i.unnotified>0,debt:i=>i.debt>0,mom:i=>i.toSend!==0};
+function filteredDays(){const f=DAY_FILTERS[$('#dayFilter').value];return allDays().filter(d=>f(dayInfo(d)))}
+let lastChipSel=null;
+function renderDayBar(){
+  const sel=$('#viewDate').value,t=today(),days=allDays();
+  const infos=Object.fromEntries(days.map(d=>[d,dayInfo(d)]));
+  const cnt={}; for(const k in DAY_FILTERS)cnt[k]=days.filter(d=>DAY_FILTERS[k](infos[d])).length;
+  [...$('#dayFilter').options].forEach(o=>o.textContent=o.textContent.replace(/ \(\d+\)$/,'')+` (${cnt[o.value]})`);
+  const f=DAY_FILTERS[$('#dayFilter').value];
+  let list=days.filter(d=>f(infos[d]));
+  [t,sel].forEach(d=>{if(!infos[d]&&!list.includes(d))list.push(d)});
+  list=[...new Set(list)].sort().reverse();
+  let html='',lastM='';
+  list.forEach(d=>{
+    const m=d.slice(0,7);
+    if(m!==lastM){html+=`<span class="mon">Th${+d.slice(5,7)}${d.slice(0,4)!==t.slice(0,4)?'/'+d.slice(2,4):''}</span>`;lastM=m}
+    const i=infos[d],label=d===t?'Hôm nay':wd(d);
+    if(!i){html+=`<button class="chip empty${d===sel?' sel':''}" data-day="${d}"><span class="cd">${label}</span><b>${dm(d)}</b><span class="cs">không bán</span></button>`;return}
+    const s=dayStatus(i);
+    html+=`<button class="chip ${s.cls}${d===sel?' sel':''}" data-day="${d}" title="${dmy(d)}: ${i.n} đơn, doanh thu ${fmt(i.rev)}, khách nợ ${fmt(i.debt)}, mẹ đã nhận ${fmt(i.sent)}"><span class="cd">${label}</span><b>${dm(d)}</b><span class="cv">${i.n} đơn · ${fmtK(i.rev)}</span><span class="cs">${s.txt}</span></button>`;
+  });
+  $('#dayChips').innerHTML=html;
+  $('#dayBarInfo').textContent=`${days.length} ngày bán · ${cnt.debt} ngày còn nợ`;
+  if(sel!==lastChipSel){lastChipSel=sel;const el=$('#dayChips .sel');if(el){const box=$('#dayChips');box.scrollLeft=el.offsetLeft-box.offsetLeft-box.clientWidth/2+el.offsetWidth/2}}
+}
+function stepDay(dir){
+  const sel=$('#viewDate').value,ds=filteredDays().sort();
+  const next=dir>0?ds.find(d=>d>sel):ds.filter(d=>d<sel).pop();
+  if(next){$('#viewDate').value=next;render()}else toast(dir>0?'Không còn ngày bán sau':'Không còn ngày bán trước');
+}
+$('#prevDay').onclick=()=>stepDay(-1);
+$('#nextDay').onclick=()=>stepDay(1);
+$('#todayBtn').onclick=()=>{$('#viewDate').value=today();render()};
+$('#dayFilter').onchange=()=>{lastChipSel=null;render()};
+
+function renderDay(){
+  renderDayBar();
+  const d=$('#viewDate').value, i=dayInfo(d);
+  $('#dayKpis').innerHTML=`
+    <div class="card kpi"><div class="lbl">Doanh thu ${d===today()?'hôm nay':wd(d)+' '+dmy(d)}</div><div class="val">${fmt(i.rev)}</div><div class="cmp flat">${i.n} đơn · ${PRODUCTS.map(p=>`${p.name} <b style="color:var(--text)">${i[p.name]}</b>`).join(' · ')}</div></div>
+    <div class="card kpi"><div class="lbl">Khách đã trả</div><div class="val">${fmt(i.paid)}</div><div class="cmp">${i.debt?`<span class="bad-t">Còn nợ ${fmt(i.debt)} (${i.debtN} đơn)</span>`:(i.n?'<span class="good-t">✓ Thu đủ</span>':'<span class="flat">—</span>')}</div></div>
+    <div class="card kpi"><div class="lbl">Mẹ đã nhận</div><div class="val">${fmt(i.sent)}</div><div class="cmp">${i.transfers.length?`<span class="flat">${i.transfers.length} lần chuyển</span>`:'<span class="flat">Chưa chuyển</span>'}</div></div>
+    <div class="card kpi ${i.toSend>0?'hl':''}"><div class="lbl">Cần chuyển mẹ</div><div class="val ${i.toSend<0?'warn-t':''}">${fmt(i.toSend)}</div><div class="cmp">${i.toSend>0?`<button class="btn sm ok" data-transfer-day>Đã chuyển cho mẹ</button>`:i.toSend<0?'<span class="warn-t">Chuyển dư so với doanh thu – xem lại</span>':(i.rev?'<span class="good-t">✓ Đã chuyển đủ</span>':'<span class="flat">—</span>')}</div></div>`;
+  $('#dayTitle').textContent=`Đơn ngày ${wd(d)} ${dmy(d)}`;
+  const os=[...i.all].sort((a,b)=>(a.time||'').localeCompare(b.time||'')||aptKey(custById(a.customerId)||{}).localeCompare(aptKey(custById(b.customerId)||{})));
+  $('#dayBody').innerHTML=os.length?os.map((o,k)=>orderRow(o,k+1)).join(''):`<tr><td colspan="8" class="empty">Chưa có đơn nào. <button class="btn sm primary" onclick="openOrder()">+ Thêm đơn</button></td></tr>`;
+  $('#dayFoot').innerHTML=os.length?footRow(os,'Tổng'):'';
+  $('#momMsg').textContent=i.unnotified?`📋 Tin nhắn cho mẹ (${i.unnotified} đơn mới)`:'📋 Tin nhắn cho mẹ';
+  $('#markAllPaid').hidden=!i.debtN;
+  $('#dayTransfers').innerHTML=i.transfers.length?i.transfers.map(t=>`<li><div>${fmt(t.amount)}<div class="sub">${t.at?new Date(t.at).toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):''}${t.note?' · '+esc(t.note):''}</div></div><button class="btn sm ghost danger" data-del-transfer="${t.id}">Xóa</button></li>`).join(''):'<li class="empty">Chưa ghi lần chuyển nào cho ngày này</li>';
+}
+
+function renderMoney(){
+  const g=globalMoney(), st=custStats();
+  const sentAll=db.transfers.reduce((s,t)=>s+(+t.amount||0),0);
+  const m30=addDays(today(),-29);
+  const rev30=db.orders.filter(o=>live(o)&&o.date>=m30).reduce((s,o)=>s+total(o),0);
+  $('#moneyKpis').innerHTML=`
+    <div class="card kpi ${g.debt?'hl':''}"><div class="lbl">Khách đang nợ</div><div class="val ${g.debt?'bad-t':''}">${fmt(g.debt)}</div><div class="cmp flat">${g.debtCust} khách</div></div>
+    <div class="card kpi ${g.toSend>0?'hl':''}"><div class="lbl">Còn giữ, cần chuyển mẹ</div><div class="val">${fmt(g.toSend)}</div><div class="cmp flat">${g.daysToSend} ngày chưa chuyển đủ</div></div>
+    <div class="card kpi"><div class="lbl">Mẹ đã nhận (tất cả)</div><div class="val">${fmt(sentAll)}</div><div class="cmp flat">${db.transfers.length} lần chuyển</div></div>
+    <div class="card kpi"><div class="lbl">Doanh thu 30 ngày</div><div class="val">${fmt(rev30)}</div><div class="cmp flat">tính cả phần khách còn nợ</div></div>`;
+  const debtors=db.customers.map(c=>({c,s:st[c.id]})).filter(x=>x.s&&x.s.debt>0).sort((a,b)=>b.s.debt-a.s.debt);
+  const anonDebt=db.orders.filter(o=>!o.customerId&&debtOf(o));
+  $('#debtBody').innerHTML=(debtors.length||anonDebt.length)?debtors.map(({c,s})=>`<tr class="click" data-cust="${c.id}">
+      <td>${aptHtml(c)}</td><td><b>${esc(custName(c))}</b><div class="muted" style="font-size:12px">${esc(c.phone||'')}</div></td>
+      <td style="font-size:12px">${[...new Set(s.debtDays)].sort().map(dm).join(', ')}<div class="muted">${diffDays(s.debtDays.sort()[0],today())} ngày từ đơn nợ đầu tiên</div></td>
+      <td class="num bad-t"><b>${fmt(s.debt)}</b></td><td class="num">${fmt(s.spent)}</td>
+      <td><button class="btn sm ok" data-payall="${c.id}">Đã thu hết</button></td></tr>`).join('')
+    +anonDebt.map(o=>`<tr class="click" data-order="${o.id}"><td><span class="muted">—</span></td><td>Khách lẻ</td><td style="font-size:12px">${dm(o.date)}</td><td class="num bad-t"><b>${fmt(debtOf(o))}</b></td><td></td><td>${payTog(o)}</td></tr>`).join('')
+    :'<tr><td colspan="6" class="empty">✅ Không có khách nào nợ</td></tr>';
+  $('#debtFoot').innerHTML=g.debt?`<tr><td colspan="3">Tổng</td><td class="num bad-t">${fmt(g.debt)}</td><td colspan="2"></td></tr>`:'';
+  const days=allDays().filter(d=>d>=addDays(today(),-44)||dayInfo(d).toSend!==0);
+  let T={rev:0,paid:0,debt:0,sent:0,toSend:0};
+  $('#momBody').innerHTML=days.length?days.map(d=>{const i=dayInfo(d);['rev','paid','debt','sent','toSend'].forEach(k=>T[k]+=i[k]);
+    return `<tr class="click" data-day="${d}"><td style="white-space:nowrap">${wd(d)} ${dmy(d)}</td><td class="num">${fmt(i.rev)}</td><td class="num">${fmt(i.paid)}</td><td class="num ${i.debt?'bad-t':'muted'}">${i.debt?fmt(i.debt):'–'}</td><td class="num">${fmt(i.sent)}</td>
+      <td class="num">${i.toSend>0?`<b class="warn-t">${fmt(i.toSend)}</b>`:i.toSend<0?`<span class="warn-t" title="Chuyển dư">${fmt(i.toSend)}</span>`:'<span class="pill p-ok">✓ Đủ</span>'}</td>
+      <td>${i.toSend>0?`<button class="btn sm ok" data-transfer-day="${d}">Đã chuyển</button>`:''}</td></tr>`}).join(''):'<tr><td colspan="7" class="empty">Chưa có dữ liệu</td></tr>';
+  $('#momFoot').innerHTML=days.length?`<tr><td>Tổng</td><td class="num">${fmt(T.rev)}</td><td class="num">${fmt(T.paid)}</td><td class="num">${fmt(T.debt)}</td><td class="num">${fmt(T.sent)}</td><td class="num">${fmt(T.toSend)}</td><td></td></tr>`:'';
+}
+
+function renderCustomers(){
+  const st=custStats(),q=$('#cSearch').value.trim().toLowerCase(),f=$('#cFilter').value,bd=$('#cBuilding').value,sort=$('#cSort').value,d=today();
+  let cs=db.customers.map(c=>({c,s:st[c.id]||{count:0,spent:0,debt:0,last:''}}));
+  if(q)cs=cs.filter(x=>[x.c.fb,x.c.phone,x.c.note,x.c.apt,x.c.building].join(' ').toLowerCase().includes(q));
+  if(bd)cs=cs.filter(x=>x.c.building===bd);
+  if(f==='churn')cs=cs.filter(x=>x.s.last&&diffDays(x.s.last,d)>=14);else if(f==='debt')cs=cs.filter(x=>x.s.debt>0);else if(f)cs=cs.filter(x=>x.c.tag===f);
+  const by={spent:(a,b)=>b.s.spent-a.s.spent,debt:(a,b)=>b.s.debt-a.s.debt,count:(a,b)=>b.s.count-a.s.count,last:(a,b)=>(b.s.last||'').localeCompare(a.s.last||''),apt:(a,b)=>aptKey(a.c).localeCompare(aptKey(b.c))};
+  cs.sort(by[sort]);
+  $('#cBody').innerHTML=cs.length?cs.map(({c,s})=>{const gap=s.last?diffDays(s.last,d):null;return`<tr class="click" data-cust="${c.id}">
+    <td>${aptHtml(c)}</td>
+    <td><b>${esc(c.fb||'')}</b><div class="muted" style="font-size:12px">${esc([c.phone,c.note].filter(Boolean).join(' · '))}</div></td>
+    <td><span class="pill ${c.tag==='VIP'?'p-vip':'p-tag'}">${esc(c.tag||'Mới')}</span></td>
+    <td class="num">${s.count}</td><td class="num">${fmt(s.spent)}</td>
+    <td class="num">${s.debt?`<b class="bad-t">${fmt(s.debt)}</b>`:'<span class="muted">–</span>'}</td>
+    <td style="white-space:nowrap">${s.last?dmy(s.last)+`<div class="${gap>=14?'down':'muted'}" style="font-size:12px">${gap===0?'hôm nay':gap+' ngày trước'}</div>`:'<span class="muted">chưa mua</span>'}</td></tr>`}).join(''):'<tr><td colspan="7" class="empty">Chưa có khách hàng nào</td></tr>';
+  $('#cFoot').innerHTML=cs.length?`<tr><td colspan="3">${cs.length} khách</td><td class="num">${cs.reduce((a,x)=>a+x.s.count,0)}</td><td class="num">${fmt(cs.reduce((a,x)=>a+x.s.spent,0))}</td><td class="num bad-t">${fmt(cs.reduce((a,x)=>a+x.s.debt,0))}</td><td></td></tr>`:'';
+}
+
+function renderOrders(){
+  const f=$('#oFrom').value,t=$('#oTo').value,s=$('#oState').value,bd=$('#oBuilding').value,q=$('#oSearch').value.trim().toLowerCase();
+  let os=db.orders.filter(o=>(!f||o.date>=f)&&(!t||o.date<=t));
+  if(s==='unpaid')os=os.filter(o=>debtOf(o)>0);else if(s==='paid')os=os.filter(o=>live(o)&&!debtOf(o));else if(s==='unnotified')os=os.filter(o=>live(o)&&!o.notified);else if(s==='cancel')os=os.filter(o=>o.cancelled);
+  if(bd)os=os.filter(o=>custById(o.customerId)?.building===bd);
+  if(q)os=os.filter(o=>{const c=custById(o.customerId);return[c?.fb,c?.phone,c?.apt,c?.building,o.note].join(' ').toLowerCase().includes(q)});
+  os.sort((a,b)=>(b.date+(b.time||'')).localeCompare(a.date+(a.time||'')));
+  $('#oBody').innerHTML=os.length?os.map(o=>orderRow(o,`${dm(o.date)}<div class="muted" style="font-size:12px">${o.time||''}</div>`)).join(''):'<tr><td colspan="8" class="empty">Không có đơn nào</td></tr>';
+  $('#oFoot').innerHTML=os.length?footRow(os,`${os.filter(live).length} đơn`):'';
+}
+
+function renderStats(){
+  const d=$('#viewDate').value, from=addDays(d,-29);
+  const os=db.orders.filter(o=>live(o)&&o.date>=from&&o.date<=d);
+  const rev=os.reduce((s,o)=>s+total(o),0);
+  $('#statKpis').innerHTML=`
+    <div class="card kpi"><div class="lbl">Doanh thu 30 ngày (đến ${dm(d)})</div><div class="val">${fmt(rev)}</div><div class="cmp flat">TB ${fmt(rev/30)}/ngày</div></div>
+    <div class="card kpi"><div class="lbl">Số đơn</div><div class="val">${os.length}</div><div class="cmp flat">${new Set(os.map(o=>o.customerId).filter(Boolean)).size} khách đã mua</div></div>
+    ${PRODUCTS.map(p=>`<div class="card kpi"><div class="lbl">${esc(p.name)}</div><div class="val">${os.reduce((s,o)=>s+qtyOf(o,p.name),0)} <span style="font-size:13px;font-weight:400" class="muted">phần</span></div><div class="cmp flat">${fmt(os.reduce((s,o)=>s+qtyOf(o,p.name)*p.price,0))}</div></div>`).join('')}`;
+  const days=[...Array(14)].map((_,i)=>addDays(d,i-13)), ds=days.map(dayInfo), max=Math.max(...ds.map(x=>x.rev),1);
+  $('#chart').innerHTML=days.map((x,i)=>`<div class="col${x===d?' sel':''}" title="${dmy(x)}: ${fmt(ds[i].rev)} · ${ds[i].n} đơn">
+    <div class="d" style="margin:0 0 2px">${ds[i].rev?fmtK(ds[i].rev):''}</div><div class="b" style="height:${ds[i].rev/max*82}%"></div><div class="d">${dm(x)}</div></div>`).join('');
+  const bb={};os.forEach(o=>{const c=custById(o.customerId);const k=c?.building?'Tòa '+c.building:'Chưa rõ tòa';bb[k]=bb[k]||{r:0,n:0};bb[k].r+=total(o);bb[k].n++});
+  $('#byBuilding').innerHTML=barList(Object.entries(bb).sort((x,y)=>y[1].r-x[1].r).map(([k,v])=>({name:k,val:v.r,label:fmt(v.r),sub:v.n+' đơn'})));
+  const tc={};os.filter(o=>o.customerId).forEach(o=>{tc[o.customerId]=tc[o.customerId]||{r:0,n:0};tc[o.customerId].r+=total(o);tc[o.customerId].n++});
+  $('#topCust').innerHTML=barList(Object.entries(tc).sort((x,y)=>y[1].r-x[1].r).slice(0,8).map(([k,v])=>{const c=custById(k);return{name:custName(c),pre:aptText(c),val:v.r,label:fmt(v.r),sub:v.n+' đơn',id:k}}));
+  const st=custStats();
+  const ch=db.customers.map(c=>({c,s:st[c.id]})).filter(x=>x.s&&x.s.count>=2&&diffDays(x.s.last,d)>=14).sort((x,y)=>y.s.spent-x.s.spent).slice(0,8);
+  $('#churn').innerHTML=ch.length?ch.map(x=>`<li data-cust="${x.c.id}" style="cursor:pointer"><div>${aptText(x.c)?`<span class="apt">${esc(aptText(x.c))}</span> `:''}${esc(custName(x.c))}<div class="sub">${x.s.count} đơn · ${fmt(x.s.spent)}</div></div><div class="sub" style="text-align:right;white-space:nowrap">${diffDays(x.s.last,d)} ngày</div></li>`).join(''):'<li class="empty">Khách quen đều đang quay lại 👍</li>';
+}
+function barList(rows){
+  if(!rows.length)return '<li class="empty">Chưa có dữ liệu</li>';
+  const max=Math.max(...rows.map(r=>r.val),1);
+  return rows.map(r=>`<li ${r.id?`data-cust="${r.id}" style="cursor:pointer"`:''}><div style="flex:1;min-width:0">${r.pre?`<span class="apt">${esc(r.pre)}</span> `:''}${esc(r.name)}<div class="hbar"><i style="width:${r.val/max*100}%"></i></div></div><div style="text-align:right;white-space:nowrap">${r.label}<div class="sub">${r.sub||''}</div></div></li>`).join('');
+}
+
+function refreshLists(){
+  $('#custList').innerHTML=db.customers.filter(c=>c.fb).map(c=>`<option value="${esc(c.fb)}">${esc(aptText(c))}</option>`).join('');
+  const bs=[...new Set(db.customers.map(c=>c.building).filter(Boolean))].sort();
+  $('#buildingList').innerHTML=bs.map(b=>`<option value="${esc(b)}">`).join('');
+  ['#oBuilding','#cBuilding'].forEach(s=>{const el=$(s),v=el.value;el.innerHTML='<option value="">Tất cả tòa</option>'+bs.map(b=>`<option value="${esc(b)}">Tòa ${esc(b)}</option>`).join('');el.value=bs.includes(v)?v:''});
+}
+
+/* ---------- Order dialog ---------- */
+let editingOrder=null,curPrices=null,curExtras=[];
+const of=$('#orderForm');
+$('#prodRows').innerHTML=PRODUCTS.map((p,i)=>`<div class="prod"><div><b>${esc(p.name)}</b><div class="muted">${fmt(p.price)} / phần</div></div>
+  <div class="step"><button type="button" class="btn" data-step="${i}" data-d="-1">−</button><input type="number" min="0" value="0" class="pq" inputmode="numeric"><button type="button" class="btn" data-step="${i}" data-d="1">+</button></div></div>`).join('');
+const pqs=()=>[...document.querySelectorAll('.pq')];
+$('#prodRows').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b)return;const inp=pqs()[b.dataset.step];inp.value=Math.max(0,(+inp.value||0)+ +b.dataset.d);calc()});
+function readItems(){return PRODUCTS.map((p,i)=>({name:p.name,qty:Math.max(0,Math.floor(+pqs()[i].value||0)),price:curPrices?.[p.name]??p.price})).filter(i=>i.qty>0).concat(curExtras)}
+const formTotal=()=>total({items:readItems(),discount:+of.discount.value||0});
+function calc(){
+  const t=formTotal(),p=+of.paid.value||0;
+  $('#orderTotal').textContent=fmt(t);
+  $('#debtNote').innerHTML=of.cancelled.checked?'<span class="muted">Đơn hủy – không tính tiền</span>':t-p>0?`<span class="bad-t">Khách còn nợ <b>${fmt(t-p)}</b></span>`:t?'<span class="good-t">✓ Khách đã trả đủ</span>':'';
+}
+of.addEventListener('input',calc);of.addEventListener('change',calc);
+$('#extraItems').addEventListener('click',e=>{if(e.target.id==='clearExtras'){curExtras=[];$('#extraItems').hidden=true;calc()}});
+$('#payFull').onclick=()=>{of.paid.value=formTotal();calc()};
+$('#payNone').onclick=()=>{of.paid.value=0;calc()};
+
+function fillFromCust(c){if(!c)return;['phone','building','apt'].forEach(k=>{if(!of[k].value)of[k].value=c[k]||''});if(!of.fb.value)of.fb.value=c.fb||''}
+of.fb.addEventListener('change',()=>fillFromCust(db.customers.find(c=>c.fb&&c.fb.toLowerCase()===of.fb.value.trim().toLowerCase())));
+of.phone.addEventListener('change',()=>{const p=normP(of.phone.value);fillFromCust(p&&db.customers.find(c=>c.phone===p))});
+const aptMatch=()=>{const b=normB(of.building.value),a=of.apt.value.trim();if(b&&a)fillFromCust(db.customers.find(c=>c.building===b&&c.apt===a))};
+of.building.addEventListener('change',aptMatch);of.apt.addEventListener('change',aptMatch);
+
+function openOrder(id,presetCust){
+  editingOrder=id?db.orders.find(o=>o.id===id):null;
+  const o=editingOrder||{date:$('#viewDate').value||today(),time:'',items:[],discount:0,paid:0,notified:false,cancelled:false,payment:'Chuyển khoản',channel:'Facebook',note:'',customerId:presetCust||null};
+  const c=custById(o.customerId);
+  curPrices=editingOrder?Object.fromEntries(o.items.map(i=>[i.name,i.price])):null;
+  curExtras=editingOrder?otherItems(o).map(i=>({...i})):[];
+  $('#extraItems').innerHTML=curExtras.length?`Món khác trong đơn: <b>${curExtras.map(i=>esc(i.name)+(i.qty>1?' ×'+i.qty:'')+' '+fmt(i.qty*i.price)).join(', ')}</b> <button type="button" class="btn sm ghost danger" id="clearExtras">Bỏ</button>`:'';
+  $('#extraItems').hidden=!curExtras.length;
+  $('#orderTitle').textContent=editingOrder?'Sửa đơn':'Đơn mới';
+  of.fb.value=c?.fb||'';of.phone.value=c?.phone||'';of.building.value=c?.building||'';of.apt.value=c?.apt||'';
+  PRODUCTS.forEach((p,i)=>pqs()[i].value=qtyOf(o,p.name));
+  of.date.value=o.date;of.time.value=o.time||'';of.note.value=o.note||'';
+  of.notified.checked=!!o.notified;of.cancelled.checked=!!o.cancelled;of.paid.value=+o.paid||0;
+  of.discount.value=o.discount||0;of.payment.value=o.payment||'Chuyển khoản';of.channel.value=o.channel||'Facebook';
+  $('#delOrder').hidden=!editingOrder;calc();
+  document.querySelectorAll('dialog[open]').forEach(x=>x.close());
+  $('#orderDlg').showModal();
+  if(!editingOrder)of.fb.focus();
+}
+function resolveCustomer(f){
+  const fb=f.fb.trim(),phone=normP(f.phone),building=normB(f.building),apt=f.apt.trim();
+  if(!fb&&!phone&&!apt)return null;
+  let c=(phone&&db.customers.find(c=>c.phone===phone))
+     ||(fb&&db.customers.find(c=>c.fb&&c.fb.toLowerCase()===fb.toLowerCase()))
+     ||(building&&apt&&db.customers.find(c=>c.building===building&&c.apt===apt));
+  if(!c){c={id:uid(),fb,phone,building,apt,tag:'Mới',note:''};db.customers.push(c)}
+  else{if(fb)c.fb=fb;if(phone)c.phone=phone;if(building)c.building=building;if(apt)c.apt=apt}
+  return c.id;
+}
+of.onsubmit=e=>{
+  e.preventDefault();
+  const items=readItems();
+  if(!of.date.value)return alert('Vui lòng chọn ngày.');
+  if(!items.length)return alert('Chọn số phần Giả cầy hoặc Cá kho.');
+  if(!of.fb.value.trim()&&!of.apt.value.trim()&&!confirm('Chưa có tên Facebook hay số căn hộ. Lưu thành khách lẻ?'))return;
+  const data={date:of.date.value,time:of.time.value,customerId:resolveCustomer({fb:of.fb.value,phone:of.phone.value,building:of.building.value,apt:of.apt.value}),items,
+    discount:+of.discount.value||0,paid:Math.max(0,+of.paid.value||0),notified:of.notified.checked,cancelled:of.cancelled.checked,payment:of.payment.value,channel:of.channel.value,note:of.note.value.trim()};
+  if(editingOrder)Object.assign(editingOrder,data);else db.orders.push({id:uid(),...data});
+  $('#orderDlg').close();save();toast('Đã lưu đơn');
+};
+$('#delOrder').onclick=()=>{if(editingOrder&&confirm('Xóa hẳn đơn này? (Nếu khách hủy, nên tick "Hủy đơn" để giữ lịch sử)')){db.orders=db.orders.filter(o=>o!==editingOrder);$('#orderDlg').close();save()}};
+$('#newOrder').onclick=()=>openOrder();
+
+/* ---------- Customer dialog ---------- */
+let editingCust=null;const cf=$('#custForm');
+function openCust(id){
+  editingCust=id?custById(id):null;const c=editingCust||{fb:'',phone:'',building:'',apt:'',tag:'Mới',note:''};
+  $('#custTitle').innerHTML=editingCust?`${aptText(c)?`<span class="apt">${esc(aptText(c))}</span> `:''}${esc(custName(c))}`:'Khách mới';
+  ['fb','phone','building','apt','note'].forEach(k=>cf[k].value=c[k]||'');cf.tag.value=c.tag||'Mới';
+  $('#delCust').hidden=$('#orderForCust').hidden=!editingCust;
+  let debt=0;
+  if(editingCust){
+    const os=db.orders.filter(o=>o.customerId===c.id).sort((a,b)=>(b.date+(b.time||'')).localeCompare(a.date+(a.time||'')));
+    const v=os.filter(live),sp=v.reduce((s,o)=>s+total(o),0);debt=v.reduce((s,o)=>s+debtOf(o),0);
+    const qty=PRODUCTS.map(p=>`${esc(p.name)}: <b>${v.reduce((s,o)=>s+qtyOf(o,p.name),0)}</b> phần`).join(' · ');
+    $('#custStats').innerHTML=`<div class="stats"><div><b>${fmt(sp)}</b><span>tổng chi tiêu (${v.length} đơn)</span></div><div><b class="${debt?'bad-t':'good-t'}">${debt?fmt(debt):'0đ'}</b><span>đang nợ</span></div><div><b>${fmt(v.length?sp/v.length:0)}</b><span>TB / đơn</span></div></div>
+      <p style="margin:4px 0 8px;font-size:13px">${qty}${v.length?` · Mua lần đầu ${dmy(v[v.length-1].date)}`:''}</p>
+      <div class="hist"><table><tbody>${os.map(o=>`<tr class="click${o.cancelled?' cancel':''}" data-order="${o.id}"><td style="white-space:nowrap">${dmy(o.date)}</td><td>${o.items.map(i=>esc(i.name)+' ×'+i.qty).join(', ')}</td><td class="num">${fmt(total(o))}</td><td class="c">${payTog(o)}</td></tr>`).join('')||'<tr><td class="empty">Chưa có đơn</td></tr>'}</tbody></table></div>`;
+  }else $('#custStats').innerHTML='';
+  $('#custPayAll').hidden=!debt;
+  if(!$('#custDlg').open){document.querySelectorAll('dialog[open]').forEach(x=>x.close());$('#custDlg').showModal()}
+}
+cf.onsubmit=e=>{
+  e.preventDefault();
+  const data={fb:cf.fb.value.trim(),phone:normP(cf.phone.value),building:normB(cf.building.value),apt:cf.apt.value.trim(),tag:cf.tag.value,note:cf.note.value.trim()};
+  if(!data.fb&&!data.apt)return alert('Nhập ít nhất tên Facebook hoặc số căn hộ.');
+  const dup=data.phone&&db.customers.find(c=>c.phone===data.phone&&c!==editingCust);
+  if(dup)return alert('Số điện thoại này đã thuộc về khách: '+custName(dup));
+  if(editingCust)Object.assign(editingCust,data);else db.customers.push({id:uid(),...data});
+  $('#custDlg').close();save();
+};
+function payAll(cid){
+  const os=db.orders.filter(o=>o.customerId===cid&&debtOf(o));
+  const sum=os.reduce((s,o)=>s+debtOf(o),0);
+  if(!os.length||!confirm(`Xác nhận ${custName(custById(cid))} đã trả hết ${fmt(sum)} (${os.length} đơn)?`))return false;
+  os.forEach(o=>o.paid=total(o));save();toast('Đã ghi nhận thu '+fmt(sum));return true;
+}
+$('#custPayAll').onclick=()=>{if(payAll(editingCust.id))openCust(editingCust.id)};
+$('#delCust').onclick=()=>{if(editingCust&&confirm(`Xóa khách "${custName(editingCust)}"? Các đơn cũ vẫn giữ lại dưới dạng khách lẻ.`)){const id=editingCust.id;db.customers=db.customers.filter(c=>c.id!==id);db.orders.forEach(o=>{if(o.customerId===id)o.customerId=null});$('#custDlg').close();save()}};
+$('#orderForCust').onclick=()=>openOrder(null,editingCust.id);
+$('#newCust').onclick=()=>openCust();
+
+/* ---------- Tin nhắn cho mẹ ---------- */
+function momList(){const d=$('#viewDate').value;const os=db.orders.filter(o=>o.date===d&&live(o));return $('#momScope').value==='new'?os.filter(o=>!o.notified):os}
+function buildMom(){
+  const d=$('#viewDate').value,list=momList().sort((a,b)=>aptKey(custById(a.customerId)||{}).localeCompare(aptKey(custById(b.customerId)||{})));
+  if(!list.length){$('#momText').value='(Không có đơn nào'+($('#momScope').value==='new'?' chưa báo mẹ':'')+')';return}
+  const lines=list.map((o,i)=>{const c=custById(o.customerId);const where=aptText(c)||custName(c);
+    return `${i+1}. ${where}: ${o.items.map(it=>it.qty+' '+it.name).join(' + ')}${o.time?' (giao '+o.time+')':''}${o.note?' – '+o.note:''}`});
+  const sums=PRODUCTS.map(p=>`${list.reduce((s,o)=>s+qtyOf(o,p.name),0)} ${p.name}`).join(', ');
+  $('#momText').value=`Mẹ ơi, đơn ${wd(d)} ${dm(d)}${$('#momScope').value==='new'&&db.orders.some(o=>o.date===d&&live(o)&&o.notified)?' (thêm)':''}:\n${lines.join('\n')}\n→ Tổng: ${sums}`;
+}
+$('#momMsg').onclick=()=>{const d=$('#viewDate').value;$('#momScope').value=db.orders.some(o=>o.date===d&&live(o)&&!o.notified)?'new':'all';buildMom();$('#momDlg').showModal()};
+$('#momScope').onchange=buildMom;
+$('#momCopy').onclick=async()=>{
+  const list=momList();if(!list.length)return $('#momDlg').close();
+  const ta=$('#momText');let ok=false;
+  try{await navigator.clipboard.writeText(ta.value);ok=true}catch(e){ta.select();try{ok=document.execCommand('copy')}catch(_){}}
+  list.forEach(o=>o.notified=true);$('#momDlg').close();save();
+  toast(ok?'Đã copy – dán vào Messenger/Zalo gửi mẹ':'Đã đánh dấu đã báo (hãy copy thủ công)');
+};
+$('#markAllPaid').onclick=()=>{const d=$('#viewDate').value,os=db.orders.filter(o=>o.date===d&&debtOf(o));if(os.length&&confirm(`Đánh dấu ${os.length} đơn còn lại của ngày ${dm(d)} là khách đã trả đủ?`)){os.forEach(o=>o.paid=total(o));save()}};
+
+/* ---------- Chuyển tiền mẹ ---------- */
+const tf=$('#tForm');
+function openTransfer(d){
+  d=d||$('#viewDate').value;const i=dayInfo(d);
+  tf.date.value=d;tf.amount.value=Math.max(0,i.toSend);tf.note.value='';
+  $('#tHint').innerHTML=`Ngày ${dmy(d)}: doanh thu ${fmt(i.rev)}, mẹ đã nhận ${fmt(i.sent)}${i.debt?`. Trong đó ${fmt(i.debt)} khách chưa trả (bạn ứng trước cho mẹ)`:''}.`;
+  $('#tDlg').showModal();tf.amount.select();
+}
+tf.date.onchange=()=>openTransfer(tf.date.value);
+tf.onsubmit=e=>{e.preventDefault();const a=+tf.amount.value||0;if(!tf.date.value||a<=0)return alert('Nhập số tiền đã chuyển.');
+  db.transfers.push({id:uid(),date:tf.date.value,amount:a,at:new Date().toISOString(),note:tf.note.value.trim()});$('#tDlg').close();save();toast('Đã ghi chuyển mẹ '+fmt(a))};
+
+/* ---------- Global clicks ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target;
+  if(t.closest('[data-close]'))return t.closest('dialog').close();
+  const tg=t.closest('[data-tog]');
+  if(tg){const o=db.orders.find(x=>x.id===tg.dataset.id);if(!o)return;
+    if(tg.dataset.tog==='paid'){const full=(+o.paid||0)>=total(o);o.paid=full?0:total(o);toast(full?'Chuyển về: chưa trả':'✓ Khách đã trả '+fmt(total(o)))}
+    else{o.notified=!o.notified}
+    save();if($('#custDlg').open&&editingCust)openCust(editingCust.id);return}
+  const pa=t.closest('[data-payall]');if(pa)return payAll(pa.dataset.payall);
+  const tr=t.closest('[data-transfer-day]');if(tr)return openTransfer(tr.dataset.transferDay||null);
+  const dt=t.closest('[data-del-transfer]');if(dt){if(confirm('Xóa lần chuyển này?')){db.transfers=db.transfers.filter(x=>x.id!==dt.dataset.delTransfer);save()}return}
+  const g=t.closest('[data-go]');if(g){return g.dataset.go==='momMsg'?$('#momMsg').click():go(g.dataset.go)}
+  const dy=t.closest('[data-day]');if(dy){$('#viewDate').value=dy.dataset.day;return go('day')}
+  const o=t.closest('[data-order]');if(o)return openOrder(o.dataset.order);
+  const c=t.closest('[data-cust]');if(c)return openCust(c.dataset.cust);
+  const a=t.closest('[data-act]');if(a){t.closest('details').open=false;actions[a.dataset.act]()}
+});
+['#oFrom','#oTo','#oState','#oBuilding','#oSearch','#cSearch','#cBuilding','#cFilter','#cSort','#viewDate'].forEach(s=>$(s).addEventListener('input',render));
+
+/* ---------- Data actions ---------- */
+function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+const actions={
+  exportJson(){download(`so-ban-hang-${today()}.json`,JSON.stringify(db,null,2),'application/json')},
+  importJson(){$('#fileIn').click()},
+  exportCsv(){
+    const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+    const rows=[['Ngày','Giờ giao','Tòa','Căn hộ','Tên Facebook','SĐT',...PRODUCTS.map(p=>p.name),'Giảm giá','Tiền đơn','Khách đã trả','Còn nợ','Đã báo mẹ','Hình thức trả','Đặt qua','Hủy','Ghi chú']];
+    [...db.orders].sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||''))).forEach(o=>{const c=custById(o.customerId);rows.push([o.date,o.time,c?.building||'',c?.apt||'',c?.fb||'',c?.phone||'',...PRODUCTS.map(p=>qtyOf(o,p.name)),o.discount||0,live(o)?total(o):0,paidOf(o),debtOf(o),o.notified?'Có':'Chưa',o.payment,o.channel,o.cancelled?'Hủy':'',o.note])});
+    rows.push([]);rows.push(['CHUYỂN TIỀN MẸ']);rows.push(['Ngày bán','Số tiền','Thời điểm ghi','Ghi chú']);
+    [...db.transfers].sort((a,b)=>a.date.localeCompare(b.date)).forEach(t=>rows.push([t.date,t.amount,t.at,t.note]));
+    download(`so-ban-hang-${today()}.csv`,'﻿'+rows.map(r=>r.map(q).join(',')).join('\r\n'),'text/csv;charset=utf-8');
+  },
+  sample(){
+    if(db.orders.length&&!confirm('Thêm dữ liệu mẫu vào dữ liệu hiện có?'))return;
+    const fbs=['Lan Nguyễn','Minh Trần','Hoàng Anh','Thu Hà Phạm','Bảo Võ','Mỹ Linh','Gia Huy','Ngọc Mai','Tuấn Kiệt','Bích Trâm','Thanh Tùng','Phương Thảo'];
+    const bs=['A','B','C'];
+    const cs=fbs.map((n,i)=>({id:uid(),fb:n,phone:i%3?'':'09'+String(12345678+i*1111111).slice(0,8),building:bs[i%3],apt:String(3+(i*7)%20)+String(1+(i*3)%12).padStart(2,'0'),tag:i<2?'VIP':i<6?'Thân thiết':'Mới',note:i===0?'Ăn ít cay':''}));
+    db.customers.push(...cs);
+    const pick=a=>a[Math.floor(Math.random()*a.length)];
+    for(let k=0;k<30;k++){
+      const d=addDays(today(),-k),n=4+Math.floor(Math.random()*8);
+      for(let j=0;j<n;j++){
+        let items=PRODUCTS.map(p=>({name:p.name,qty:Math.random()<.6?1+Math.floor(Math.random()*2):0,price:p.price})).filter(i=>i.qty);
+        if(!items.length)items=[{name:pick(PRODUCTS).name,qty:1,price:100000}];
+        let cust=Math.random()<.5?pick(cs.slice(0,6)):pick(cs);
+        if(cs.indexOf(cust)>=9&&k<16)cust=pick(cs.slice(0,6));
+        const o={id:uid(),date:d,time:pick(['10:30','11:00','11:30','17:00','17:30','18:00']),customerId:cust.id,items,discount:0,payment:Math.random()<.85?'Chuyển khoản':'Tiền mặt',channel:Math.random()<.75?'Facebook':pick(['Zalo','Trực tiếp']),cancelled:Math.random()<.03,notified:k>0||Math.random()<.5,note:''};
+        o.paid=(k===0&&Math.random()<.45)||(k>0&&k<6&&Math.random()<.08)||(cs.indexOf(cust)===4&&k<9)?0:total(o);
+        db.orders.push(o);
+      }
+    }
+    for(let k=1;k<30;k++){const d=addDays(today(),-k),i=dayInfo(d);if(k===1)continue;if(i.toSend>0)db.transfers.push({id:uid(),date:d,amount:i.toSend,at:addDays(d,0)+'T14:30:00.000Z',note:''})}
+    save();
+  },
+  reseed(){const s=seed();if(!s)return alert('Không có dữ liệu Excel trong file.');if(confirm(`Thay toàn bộ dữ liệu hiện tại bằng dữ liệu từ Excel (${s.orders.length} đơn, ${s.customers.length} khách)? Các đơn nhập thêm trên trang sẽ mất – nên sao lưu JSON trước.`)){db=s;save()}},
+  clear(){if(confirm('Xóa TOÀN BỘ đơn hàng, khách hàng và lịch sử chuyển mẹ? Không thể hoàn tác (nên sao lưu JSON trước).')){db={customers:[],orders:[],transfers:[]};save()}}
+};
+$('#fileIn').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  f.text().then(t=>{const d=JSON.parse(t);if(!Array.isArray(d.orders)||!Array.isArray(d.customers))throw 0;
+    if(confirm(`Khôi phục ${d.orders.length} đơn và ${d.customers.length} khách? Dữ liệu hiện tại sẽ bị thay thế.`)){db=migrate(d);save()}})
+  .catch(()=>alert('File không hợp lệ.')).finally(()=>e.target.value='');
+};
+
+/* ---------- Init ---------- */
+$('#viewDate').value=today();
+$('#oFrom').value=addDays(today(),-6);$('#oTo').value=today();
+render();
+</script>
+</body>
+</html>
